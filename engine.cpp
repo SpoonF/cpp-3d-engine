@@ -5,6 +5,7 @@
 #include <string.h>
 #include <queue>
 #include <functional>
+#include <map>
 
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
@@ -12,11 +13,10 @@
 #include <glm/ext/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale
 #include <glm/ext/matrix_clip_space.hpp> // glm::perspective
 #include <glm/ext/scalar_constants.hpp> // glm::pi
+#include <glm/gtx/quaternion.hpp>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
-using namespace std;
 
 class imageBMP {
 public:
@@ -59,20 +59,20 @@ public:
 
 class Model {
     public:
-    vector<glm::vec3> vertices;
-    vector<glm::vec2> uvs;
-    vector<glm::vec3> normals;
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec2> uvs;
+    std::vector<glm::vec3> normals;
     Model(const char* filename) {
         FILE* file = fopen(filename, "r");
 
         assert(file != NULL && "Impossible to open the file !\n");
 
-        vector<glm::vec3> tmp_vertices;
-        vector<glm::vec2> tmp_uvs;
-        vector<glm::vec3> tmp_normals;
-        vector<int> fragVert;
-        vector<int> fragUV;
-        vector<int> fragNorm;
+        std::vector<glm::vec3> tmp_vertices;
+        std::vector<glm::vec2> tmp_uvs;
+        std::vector<glm::vec3> tmp_normals;
+        std::vector<int> fragVert;
+        std::vector<int> fragUV;
+        std::vector<int> fragNorm;
 
         while (true)
         {
@@ -94,7 +94,7 @@ class Model {
                 fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
                 tmp_normals.push_back(normal);
             } else if ( strcmp(lineHeader, "f") == 0 ) {
-                string vertex1, vertex2, vertex3;
+                std::string vertex1, vertex2, vertex3;
                 unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
                 int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
                 
@@ -129,22 +129,9 @@ class Model {
         }
     }
 };
-
-
-
-class Texture {
-    public:
-    Texture(const char* filename) {
-        FILE* file = fopen(filename, "rb");
-        
-    }
-};
-
-class Object {
-    
-};
-
 class Object3D {
+    int id;
+    static inline int count = 0;
     public:
     Model* model;
     imageBMP* texture;
@@ -152,59 +139,225 @@ class Object3D {
     Object3D(Model* _model, imageBMP* _texture) {
         model = _model;
         texture = _texture;
+        count++;
+        id = count;
     }
     Object3D(const char* modelpath, const char* texturepath) {
         model = new Model(modelpath);
-        texture = new imageBMP(texturepath);;
+        texture = new imageBMP(texturepath);
+        count++;
+        id = count;
     }
     Object3D(const char* modelpath) {
         model = new Model(modelpath);
+        count++;
+        id = count;
+    }
+    bool operator<(const Object3D& other) const {
+        return id < other.id;
     }
 };
-class Entity {
-    Object3D _object;
-    glm::vec3 _pos = glm::vec3(0.0f, 0.0f, 0.0f);
-    public:
-    Entity(Object3D obj) {
-        _object = obj;
+class CollisionInfo {
+public:
+    glm::vec3 Normal = {1.1f, 1.0f, 1.1f};
+    float PenetrationDepth = 0.05f;
+    std::vector<glm::vec3> collisionPoints;
+    glm::vec3 direction;
+};
+
+class Plane {
+public:
+    glm::vec3 P1;
+    glm::vec3 Normal;
+
+    inline Plane(glm::vec3 p1, glm::vec3 normal) {
+        P1 = p1;
+        Normal = normal;
     }
-    void setPosition(glm::vec3 pos) {
-        _pos = pos;
+};
+
+class Collision {
+public:
+    glm::vec3 position;
+    Object3D object;
+    float radius = 1.15f;
+    Collision(const Object3D& object, glm::vec3 position) {
+        this->object = object;
+        this->position = position;
+    }
+
+    virtual int getVertexCount() {
+        return object.model->vertices.size();
+    };
+    virtual glm::vec3 getVertex(int i) {
+        return object.model->vertices[i];
+    };
+    virtual void setPosition(const glm::vec3& pos) {
+        this->position = pos;
+    };
+    virtual glm::vec3 getPosition() {
+        return position;
+    };
+    bool checkSphereCollision(Collision* other, CollisionInfo& info) {
+        auto getDirection = [](glm::vec3 delta){
+            glm::vec3 direction{0, 0, 0};
+            size_t bigIndex = 0;
+            for (size_t i = 1; i < 3; i++)
+            {
+                if(fabs(delta[bigIndex]) < fabs(delta[i])) {
+                    bigIndex = i;
+                }
+            }
+            direction[bigIndex] = delta[bigIndex];
+
+            return direction;
+        };
+
+        glm::vec3 delta = other->getPosition() - this->getPosition();
+        
+        float distance = glm::length(delta);
+        float radiusSum = this->radius + other->radius;
+        
+        if (distance < radiusSum) {
+            // Есть коллизия
+            info.Normal = glm::normalize(delta);
+            info.PenetrationDepth = radiusSum - distance;
+            info.direction = getDirection(delta);
+            info.collisionPoints.push_back(
+                this->getPosition() + info.Normal
+            );
+
+            // printf("[debag]: direction data x: %f, y: %f, z: %f \n", info.direction.x, info.direction.y, info.direction.z);
+            return true;
+        }
+        return false;
+    }
+};
+
+class Entity: public Collision {
+
+public:
+    static inline int count = 0;
+    glm::vec3 rotate{0,0,0};
+    // Object3D object;
+    int id;
+    Entity(const Object3D& object, glm::vec3 position): Collision(object, position) {
+
+        count++;
+        id = count;
+    }
+    bool constains(const glm::vec3& point) const {
+        return glm::all(glm::greaterThanEqual(point, position)) && 
+        glm::all(glm::lessThanEqual(point, position + 1.f));
+    }
+    void setRotate(glm::vec3 rotate) {
+        this->rotate = rotate;
+    }
+    glm::vec3 getRotate() {
+        return rotate;
     }
     Object3D getObject() {
-        return _object;
+        return object;
     }
-    glm::vec3 getPosition() {
-        return _pos;
-    }
+    // void setPosition(const glm::vec3& pos)  {
+    //     this->position = pos;
+    // }
+    // glm::vec3 getPosition()  {
+    //     return this->position;
+    // }
+    // int getVertexCount()  {
+    //     return object.model->vertices.size();
+    // }
+    // glm::vec3 getVertex(int i)  {
+    //     return object.model->vertices[i];
+    // }
 };
-
-
-class Player {
-    glm::vec3 position = glm::vec3(0, 0, 0);
-    public:
-    Player(){}
-    void setPosition(glm::vec3 pos) {
-        position = pos;
+class Camera  {
+    glm::vec3 position;
+    float horizontalAngle = 3.14f;
+    float verticalAngle = 0.0f;
+    float fov = 45.0f;
+    float mouseSpeed = 0.05f;
+    double xpos, ypos;
+    int width, height;
+    glm::vec3 direction;
+    glm::vec3 right;
+    glm::vec3 up;
+    GLFWwindow* window;
+    Object3D object;
+    public: 
+    using CallbackType = std::function<void( glm::vec3, glm::vec3, glm::vec3, float)>;
+    Camera(GLFWwindow* window) {
+        position = {0,0,0};
+        this->window = window;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        glfwGetWindowSize(window, &width, &height);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        object = Object3D("./objects/cube.obj");
     }
-    glm::vec3 getPosition(glm::vec3 pos) {
-        return position;
+    glm::mat4 getView(float& deltaTime) {
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        horizontalAngle += mouseSpeed * deltaTime * float(width/2 - xpos);
+        verticalAngle += mouseSpeed * deltaTime * float(height/2 - ypos);
+
+        verticalAngle = std::min(verticalAngle, 1.5f);
+        verticalAngle = std::max(verticalAngle, -1.5f);
+
+        glm::vec3 direction(
+            cos(verticalAngle) * sin(horizontalAngle),
+            sin(verticalAngle),
+            cos(verticalAngle) * cos(horizontalAngle)
+        );
+
+        glm::vec3 right(
+            sin(horizontalAngle - 3.14f/2.0f),
+            0,
+            cos(horizontalAngle - 3.14f/2.0f)
+        );
+
+        glm::vec3 up = glm::cross( right, direction );
+
+        for (size_t i = 0; i < callbacks_.size(); i++) {
+            callbacks_[i](direction, right, up, deltaTime);
+        }
+
+        glfwSetCursorPos(window, width/2, height/2);
+
+        return glm::lookAt(
+            position,
+            position + direction,
+            up
+        );
     }
+    glm::mat4 getProjection() {
+        return glm::perspective(glm::radians(fov), 4.f/3.f, 0.1f, 300.0f);
+    }
+    void setViewCallback(CallbackType action) {
+        callbacks_.push_back(action);
+    }
+
+    void setPosition(const glm::vec3& pos)  {
+        this->position = pos;
+    }
+    glm::vec3 getPosition()  {
+        return this->position;
+    }
+    int getVertexCount()  {
+        return object.model->vertices.size();
+    }
+    glm::vec3 getVertex(int i)  {
+        return object.model->vertices[i];
+    }
+private:
+    std::vector<CallbackType> callbacks_;
 };
 
 class Shader {
     GLFWwindow *window;
+    Camera* camera;
+
     int shaderId;
-    glm::vec3 position = glm::vec3(0, 0, 5);
-    float horizontalAngle = 3.14f;
-    float verticalAngle = 0.0f;
-    float fov = 45.0f;
-
-    float speed = 3.f;
-    float mouseSpeed = 0.05f;
-
-    double xpos, ypos;
-    int width, height;
     double lastTime;
     std::queue<std::function<void()>> drawQueue = std::queue<std::function<void()>>();
 
@@ -274,7 +427,7 @@ class Shader {
 
         return shaderProgram;
     }
-    void drawObject(Object3D obj) {
+    void drawObject(const Object3D& obj) {
         unsigned int VAO, VBO;
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
@@ -329,7 +482,7 @@ class Shader {
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &VBO);
     }
-    void drawObjectInstaced(Object3D obj, std::vector<glm::vec3> instances) {
+    void drawObjectInstaced(const Object3D& obj, const std::vector<glm::vec3>& instances, const std::vector<glm::mat4>& rotations) {
         unsigned int VAO, VBO;
 
         glGenVertexArrays(1, &VAO);
@@ -349,8 +502,14 @@ class Shader {
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
         glBufferData(GL_ARRAY_BUFFER, instances.size() * sizeof(glm::vec3), &instances[0], GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        unsigned int rotationVBO;
+        glGenBuffers(1, &rotationVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, rotationVBO);
+        glBufferData(GL_ARRAY_BUFFER, rotations.size() * sizeof(glm::mat4), &rotations[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         
-        GLuint uvBuffer;
+        unsigned int uvBuffer;
         glGenBuffers(1, &uvBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
         glBufferData(GL_ARRAY_BUFFER, obj.model->uvs.size() * sizeof(glm::vec2), &obj.model->uvs[0], GL_STATIC_DRAW);
@@ -373,15 +532,17 @@ class Shader {
         glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-        // glEnableVertexAttribArray(2);
-        // glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-        // glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
         glEnableVertexAttribArray(2);
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);	
         glVertexAttribDivisor(2, 1);   
+
+        glEnableVertexAttribArray(3);
+        glBindBuffer(GL_ARRAY_BUFFER, rotationVBO);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);	
+        glVertexAttribDivisor(3, 1);   
         
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
@@ -394,33 +555,27 @@ class Shader {
         glDeleteBuffers(1, &VBO);
     }
     public:
-    Shader(GLFWwindow *_window) {
-        shaderId = initShaderProgram();
-        window = _window;
+    Shader(GLFWwindow *window, Camera* camera) {
+        this->camera = camera;
+        this->window = window;
 
-        glfwGetCursorPos(window, &xpos, &ypos);
-        glfwGetWindowSize(window, &width, &height);
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+        shaderId = initShaderProgram();
         lastTime = glfwGetTime();
     }
     void draw() {
-        glfwGetCursorPos(window, &xpos, &ypos);
 
         double currentTime = glfwGetTime();
         float deltaTime = float(currentTime - lastTime);
         lastTime = glfwGetTime();
 
-        horizontalAngle += mouseSpeed * deltaTime * float(width/2 - xpos);
-        verticalAngle += mouseSpeed * deltaTime * float(height/2 - ypos);
-
-        glm::mat4 Projection = getProjection();
-        glm::mat4 View = getView(deltaTime);
+        glm::mat4 Projection = camera->getProjection();
+        glm::mat4 View = camera->getView(deltaTime);
         glm::mat4 Model = getModel();
 
-        glm::mat4 MVP = Projection * View * Model;
-
-        set("MVP", MVP);
-
+        set("Projection", Projection);
+        set("View", View);
+        set("Model", Model);
 
         glUseProgram(shaderId);
 
@@ -429,241 +584,88 @@ class Shader {
             drawQueue.front()();
             drawQueue.pop();
         }
-
-        glfwSetCursorPos(window, width/2, height/2);
-    }
-    glm::mat4 getProjection() {
-        return glm::perspective(glm::radians(fov), 4.f/3.f, 0.1f, 100.0f);
-    }
-    glm::mat4 getView(float deltaTime) {
-        glm::vec3 direction(
-            cos(verticalAngle) * sin(horizontalAngle),
-            sin(verticalAngle),
-            cos(verticalAngle) * cos(horizontalAngle)
-        );
-
-        glm::vec3 right(
-            sin(horizontalAngle - 3.14f/2.0f),
-            0,
-            cos(horizontalAngle - 3.14f/2.0f)
-        );
-
-        glm::vec3 upDir(
-            0,
-            2.f,
-            0
-        );
-
-        glm::vec3 up = glm::cross( right, direction );
-
-        float moveSpeed = speed;
-
-        if (glfwGetKey(window,  GLFW_KEY_LEFT_CONTROL ) == GLFW_PRESS){
-            moveSpeed *= 2;
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_W ) == GLFW_PRESS){
-            position += direction * deltaTime * moveSpeed;
-        }
-        // Движение назад
-        if (glfwGetKey(window,  GLFW_KEY_S ) == GLFW_PRESS){
-            position -= direction * deltaTime * moveSpeed;
-        }
-        // Стрэйф вправо
-        if (glfwGetKey(window,  GLFW_KEY_D ) == GLFW_PRESS){
-            position += right * deltaTime * moveSpeed;
-        }
-        // Стрэйф влево
-        if (glfwGetKey(window,  GLFW_KEY_A ) == GLFW_PRESS){
-            position -= right * deltaTime * moveSpeed;
-        }
-
-        // Движение вверх
-        if (glfwGetKey(window,  GLFW_KEY_SPACE ) == GLFW_PRESS){
-            position += upDir * deltaTime * moveSpeed;
-        }
-        // Движение вниз
-        if (glfwGetKey(window,  GLFW_KEY_LEFT_SHIFT ) == GLFW_PRESS){
-            position -= upDir * deltaTime * moveSpeed;
-        }
-
-        return glm::lookAt(
-            position,
-            position + direction,
-            up
-        );
     }
     glm::mat4 getModel() {
         return glm::mat4(1.0f);
     }
-    void set(const char* name, glm::vec3 data) {
+    void set(const char* name, glm::vec3& data) {
         GLuint dataId = glGetUniformLocation(shaderId, name);
 
         glUniform3f(dataId, data.x, data.y, data.z);
     }
-    void set(const char* name, int data) {
+    void set(const char* name, int& data) {
         GLuint dataId = glGetUniformLocation(shaderId, name);
 
         glUniform1i(dataId, data);
     }
-    void set(char* name, glm::mat4 data) {
+    void set(char* name, glm::mat4& data) {
         GLuint dataId = glGetUniformLocation(shaderId, name);
 
         glUniformMatrix4fv(dataId, 1, GL_FALSE, &data[0][0]);
     }
-    void addDraw(Object3D object){
+    void addDraw(const Object3D& object){
         drawQueue.push([this, object]() { drawObject(object); });
     }
-    void addDraw(Object3D object, std::vector<glm::vec3> instances){
-        drawQueue.push([this, object, instances]() { drawObjectInstaced(object, instances); });
+    void addDraw(const Object3D& object, const std::vector<glm::vec3>& instances, const std::vector<glm::mat4>& rotations){
+        drawQueue.push([this, object, instances, rotations]() { drawObjectInstaced(object, instances, rotations); });
     }
 };
 
 class Scene {
-    GLFWwindow *_window;
+    GLFWwindow* window;
     Shader* shdr;
+    Camera* camera;
     public:
-    vector<vector<int>> map;
-    std::vector<Entity> entities;
-    Scene(GLFWwindow *window) {
-        _window = window;
-        shdr = new Shader(window);
+    std::vector<std::vector<int>> map;
+    std::vector<Entity*> entities;
+    Scene(GLFWwindow *window, Camera* camera) {
+        this->window = window;
+        shdr = new Shader(window, camera);
     }
-    void addEntity(Entity entity) {
+    void addEntity(Entity* entity) {
         entities.push_back(entity);
+    }
+    std::vector<Entity*> getEntities() const {
+        return entities;
+    }
+
+    void setEntities(std::vector<Entity*> entities) {
+        this->entities = entities;
     }
     void update() {
 
-        Object3D object = entities[0].getObject();
+        std::map<Object3D, std::tuple<std::vector<glm::vec3>, std::vector<glm::mat4>>> map;
 
-        std::vector<glm::vec3> positions;
         for (size_t i = 0; i < entities.size(); i++)
         {
-            positions.push_back(entities[i].getPosition());
+            Object3D object = entities[i]->getObject();
+            glm::vec3 position = entities[i]->getPosition();
+            glm::vec3 rotate = entities[i]->getRotate();
+
+            if(map.count(object) == 1) {
+                std::get<0>(map.at(object)).push_back(position);
+                std::get<1>(map.at(object)).push_back(glm::mat4_cast(glm::rotation(
+                    glm::vec3(0.0f, 0.0f, 0.0f),
+                    rotate 
+                )));
+            }else {
+                std::vector<glm::vec3> tmpPos;
+                std::vector<glm::mat4> tmpRot;
+                tmpPos.push_back(position);
+                tmpRot.push_back(glm::mat4_cast(glm::rotation(
+                    glm::vec3(0.0f, 0.0f, 0.0f),
+                    rotate 
+                )));
+                map.insert({object, {tmpPos, tmpRot}});
+            }
         }
 
-        shdr->addDraw(object, positions);
+        for (auto it = map.begin(); it != map.end(); it++)
+        {
+            shdr->addDraw(it->first, std::get<0>(it->second), std::get<1>(it->second));
+        }
+        
         shdr->draw();
         
-    }
-
-    void setShader(int shaderProgram, const char* name, glm::vec3 data) {
-        GLuint dataId = glGetUniformLocation(shaderProgram, name);
-
-        glUniform3f(dataId, data.x, data.y, data.z);
-    }
-    void setShader(int shaderProgram, const char* name, int data) {
-        GLuint dataId = glGetUniformLocation(shaderProgram, name);
-
-        glUniform1i(dataId, data);
-    }
-    void setShader(int shaderProgram, char* name, glm::mat4 data) {
-        GLuint dataId = glGetUniformLocation(shaderProgram, name);
-
-        glUniformMatrix4fv(dataId, 1, GL_FALSE, &data[0][0]);
-    }
-    void drawObject(unsigned int& VAO, unsigned int& VBO, Object3D obj) {
-
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-        
-        glBindVertexArray(VAO);
-        
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, obj.model->vertices.size() * sizeof(glm::vec3), &obj.model->vertices[0], GL_STATIC_DRAW);
-        
-        // Позиции
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-        glEnableVertexAttribArray(0);
-
-        GLuint uvBuffer;
-        glGenBuffers(1, &uvBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-        glBufferData(GL_ARRAY_BUFFER, obj.model->uvs.size() * sizeof(glm::vec2), &obj.model->uvs[0], GL_STATIC_DRAW);
-
-        GLuint normalBuffer;
-        glGenBuffers(2, &normalBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-        glBufferData(GL_ARRAY_BUFFER, obj.model->normals.size() * sizeof(glm::vec2), &obj.model->normals[0], GL_STATIC_DRAW);
-
-
-        unsigned int texture;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, obj.texture->width, obj.texture->height, 0, GL_BGR, GL_UNSIGNED_BYTE, obj.texture->data);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-        glGenerateMipmap(GL_TEXTURE_2D);
-        
-        // Цвета
-
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-        glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-        
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-    }
-    void drawObjectInstaced(unsigned int& VAO, unsigned int& VBO, Object3D obj, std::vector<glm::vec3> positions) {
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-
-
-        glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, obj.model->vertices.size() * sizeof(glm::vec3), &obj.model->vertices[0], GL_STATIC_DRAW);
-
-        // Позиции
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-        glEnableVertexAttribArray(0);
-
-        unsigned int instanceVBO;
-        glGenBuffers(1, &instanceVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-        glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), &positions[0], GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        
-        GLuint uvBuffer;
-        glGenBuffers(1, &uvBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-        glBufferData(GL_ARRAY_BUFFER, obj.model->uvs.size() * sizeof(glm::vec2), &obj.model->uvs[0], GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        unsigned int texture;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, obj.texture->width, obj.texture->height, 0, GL_BGR, GL_UNSIGNED_BYTE, obj.texture->data);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-        glGenerateMipmap(GL_TEXTURE_2D);
-        
-        // Цвета
-
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-        // glEnableVertexAttribArray(2);
-        // glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-        // glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-        glEnableVertexAttribArray(2);
-        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);	
-        glVertexAttribDivisor(2, 1);   
-        
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
     }
 };
