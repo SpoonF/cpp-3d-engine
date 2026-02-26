@@ -18,149 +18,12 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-class imageBMP {
-public:
-    unsigned char header[54];
-    unsigned int dataPos;
-    unsigned int width, height;
-    unsigned int size;
-    unsigned char* data;
-    imageBMP(const char* filename) {
-        FILE* file = fopen(filename, "rb");
-        
-        if (!file) {
-            printf("Изображение не может быть открытоn");
-            exit(0);
-        }
-        
-        if( fread(header, 1, 54, file) != 54 ) {
-            printf("Некорректный BMP-файлn");
-            exit(0);
-        }
+#include "engine/object.cpp"
 
-        if(header[0] != 'B' && header[1] != 'M') {
-            printf("Некорректный BMP-файлn");
-            exit(0);
-        }
-
-        dataPos = *(int*)&(header[0x0A]);
-        size = *(int*)&(header[0x22]);
-        width = *(int*)&(header[0x12]);
-        height = *(int*)&(header[0x16]);
-
-        if(size == 0) size = width * height * 3;
-        if(dataPos == 0) dataPos = 54;
-
-        data = new unsigned char [size];
-        fread(data, 1, size, file);
-        fclose(file);
-    }
-};
-
-class Model {
-    public:
-    std::vector<glm::vec3> vertices;
-    std::vector<glm::vec2> uvs;
-    std::vector<glm::vec3> normals;
-    Model(const char* filename) {
-        FILE* file = fopen(filename, "r");
-
-        assert(file != NULL && "Impossible to open the file !\n");
-
-        std::vector<glm::vec3> tmp_vertices;
-        std::vector<glm::vec2> tmp_uvs;
-        std::vector<glm::vec3> tmp_normals;
-        std::vector<int> fragVert;
-        std::vector<int> fragUV;
-        std::vector<int> fragNorm;
-
-        while (true)
-        {
-            char lineHeader[128];
-
-            int res = fscanf(file, "%s", lineHeader);
-            if (res == EOF) break;
-
-            if ( strcmp(lineHeader, "v") == 0 ) {
-                glm::vec3 vertex; 
-                fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-                tmp_vertices.push_back(vertex);
-            } else if ( strcmp(lineHeader, "vt") == 0 ) {
-                glm::vec2 uv;
-                fscanf(file, "%f %f\n", &uv.x, &uv.y);
-                tmp_uvs.push_back(uv);
-            } else if ( strcmp(lineHeader, "vn") == 0 ) {
-                glm::vec3 normal;
-                fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-                tmp_normals.push_back(normal);
-            } else if ( strcmp(lineHeader, "f") == 0 ) {
-                std::string vertex1, vertex2, vertex3;
-                unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-                int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
-                
-                assert(matches == 9 && "Fuck!");
-
-                
-                fragVert.push_back(vertexIndex[0]);
-                fragVert.push_back(vertexIndex[1]);
-                fragVert.push_back(vertexIndex[2]);
-                fragUV.push_back(uvIndex[0]);
-                fragUV.push_back(uvIndex[1]);
-                fragUV.push_back(uvIndex[2]);
-                fragNorm.push_back(normalIndex[0]);
-                fragNorm.push_back(normalIndex[1]);
-                fragNorm.push_back(normalIndex[2]);
-            }
-        }
-
-        for (size_t i = 0; i < fragVert.size(); i++)
-        {
-            vertices.push_back(tmp_vertices[ fragVert[i] - 1 ]);
-        }
-
-        for (size_t i = 0; i < fragUV.size(); i++)
-        {
-            uvs.push_back(tmp_uvs[ fragUV[i] - 1 ]);
-        }
-
-        for (size_t i = 0; i < fragNorm.size(); i++)
-        {
-            normals.push_back(tmp_normals[ fragNorm[i] - 1 ]);
-        }
-    }
-};
-class Object3D {
-    int id;
-    static inline int count = 0;
-    public:
-    Model* model;
-    imageBMP* texture;
-    Object3D() {}
-    Object3D(Model* _model, imageBMP* _texture) {
-        model = _model;
-        texture = _texture;
-        count++;
-        id = count;
-    }
-    Object3D(const char* modelpath, const char* texturepath) {
-        model = new Model(modelpath);
-        texture = new imageBMP(texturepath);
-        count++;
-        id = count;
-    }
-    Object3D(const char* modelpath) {
-        model = new Model(modelpath);
-        count++;
-        id = count;
-    }
-    bool operator<(const Object3D& other) const {
-        return id < other.id;
-    }
-};
 class CollisionInfo {
 public:
-    glm::vec3 Normal = {1.1f, 1.0f, 1.1f};
-    float PenetrationDepth = 0.05f;
+    glm::vec3 Normal;
+    float PenetrationDepth;
     std::vector<glm::vec3> collisionPoints;
     glm::vec3 direction;
 };
@@ -185,6 +48,9 @@ public:
         this->object = object;
         this->position = position;
     }
+    Collision(glm::vec3 position) {
+        this->position = position;
+    }
 
     virtual int getVertexCount() {
         return object.model->vertices.size();
@@ -198,7 +64,7 @@ public:
     virtual glm::vec3 getPosition() {
         return position;
     };
-    bool checkSphereCollision(Collision* other, CollisionInfo& info) {
+    bool checkSphereCollision(Collision* other, CollisionInfo& info, float radius = NULL) {
         auto getDirection = [](glm::vec3 delta){
             glm::vec3 direction{0, 0, 0};
             size_t bigIndex = 0;
@@ -214,9 +80,13 @@ public:
         };
 
         glm::vec3 delta = other->getPosition() - this->getPosition();
+
+        if(radius == NULL) {
+            radius = this->radius;
+        }
         
         float distance = glm::length(delta);
-        float radiusSum = this->radius + other->radius;
+        float radiusSum = radius + other->radius;
         
         if (distance < radiusSum) {
             // Есть коллизия
@@ -232,6 +102,50 @@ public:
         }
         return false;
     }
+
+    bool checkBoxCollision(Collision* other, CollisionInfo& info) {
+        auto getDirection = [](glm::vec3 delta){
+            glm::vec3 direction{0, 0, 0};
+            size_t bigIndex = 0;
+            for (size_t i = 1; i < 3; i++)
+            {
+                if(fabs(delta[bigIndex]) < fabs(delta[i])) {
+                    bigIndex = i;
+                }
+            }
+            direction[bigIndex] = delta[bigIndex];
+
+            return direction;
+        };
+
+        glm::vec3 pos = this->getPosition();
+        glm::vec3 oPos = other->getPosition();
+
+        glm::vec3 delta = oPos - pos;
+        
+        bool collision = 
+            (oPos.x <= (pos.x + 2.0f) && (oPos.x + 2.0f) >= pos.x) &&
+            (oPos.y <= (pos.y + 2.0f) && (oPos.y + 2.0f) >= pos.y) &&
+            (oPos.z <= (pos.z + 2.0f) && (oPos.z + 2.0f) >= pos.z);
+        
+        if (collision) {
+            // Есть коллизия
+            info.Normal = glm::normalize(delta);
+            // info.PenetrationDepth = radiusSum - distance;
+            info.direction = getDirection(delta);
+            info.collisionPoints.push_back(
+                this->getPosition() + info.Normal
+            );
+
+            // printf("[debag]: direction data x: %f, y: %f, z: %f \n", info.direction.x, info.direction.y, info.direction.z);
+            return true;
+        }
+        return false;
+    }
+};
+
+enum EntityType {
+    BLOCK = 0,
 };
 
 class Entity: public Collision {
@@ -239,12 +153,12 @@ class Entity: public Collision {
 public:
     static inline int count = 0;
     glm::vec3 rotate{0,0,0};
-    // Object3D object;
-    int id;
-    Entity(const Object3D& object, glm::vec3 position): Collision(object, position) {
-
+    EntityType type;
+    int id = 0;
+    Entity(const Object3D& object, glm::vec3 position, EntityType type): Collision(object, position) {
         count++;
         id = count;
+        this->type = type;
     }
     bool constains(const glm::vec3& point) const {
         return glm::all(glm::greaterThanEqual(point, position)) && 
@@ -259,6 +173,10 @@ public:
     Object3D getObject() {
         return object;
     }
+    EntityType getType() {
+        return type;
+    }
+    
     // void setPosition(const glm::vec3& pos)  {
     //     this->position = pos;
     // }
@@ -276,7 +194,7 @@ class Camera  {
     glm::vec3 position;
     float horizontalAngle = 3.14f;
     float verticalAngle = 0.0f;
-    float fov = 45.0f;
+    float fov = 70.0f;
     float mouseSpeed = 0.05f;
     double xpos, ypos;
     int width, height;
@@ -584,6 +502,8 @@ class Shader {
             drawQueue.front()();
             drawQueue.pop();
         }
+        // drawCrossPoint(shaderId);
+        
     }
     glm::mat4 getModel() {
         return glm::mat4(1.0f);
@@ -609,6 +529,57 @@ class Shader {
     void addDraw(const Object3D& object, const std::vector<glm::vec3>& instances, const std::vector<glm::mat4>& rotations){
         drawQueue.push([this, object, instances, rotations]() { drawObjectInstaced(object, instances, rotations); });
     }
+    // void drawCrossPoint(int shaderProgram) {
+    //     float size = 0.1f;
+    //     GLfloat vertices[] = {
+    //         // Горизонтальная линия (слева направо)
+    //         -size, 0.0f,  // Левая точка
+    //         size, 0.0f,  // Правая точка
+
+    //         // Вертикальная линия (снизу вверх)
+    //         0.0f, -size,  // Нижняя точка
+    //         0.0f,  size   // Верхняя точка
+    //     };
+
+    //     GLuint VAO, VBO;
+
+    //     // Создаем и связываем VAO
+    //     glGenVertexArrays(1, &VAO);
+    //     glGenBuffers(1, &VBO);
+
+    //     glBindVertexArray(VAO);
+
+    //     // Загружаем данные в VBO
+    //     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    //     // Настраиваем атрибуты вершин (позиция)
+    //     // layout (location = 0) in vec2 aPos;
+    //     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
+    //     glEnableVertexAttribArray(0);
+
+    //     // Отвязываем (необязательно)
+    //     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //     glBindVertexArray(0);
+
+    //     glDisable(GL_DEPTH_TEST);
+
+    //     // Если нужен цвет
+    //     GLint colorLoc = glGetUniformLocation(shaderProgram, "uColor");
+    //     glUniform3f(colorLoc, 1.0f, 1.0f, 1.0f); // Белый
+
+    //     // Рисуем
+    //     glBindVertexArray(VAO);
+
+    //     // glDrawArrays(режим, начальный индекс, количество вершин)
+    //     // GL_LINES будет рисовать пары вершин: (0,1) и (2,3)
+    //     glDrawArrays(GL_LINES, 0, 4); // 4 вершины = 2 линии
+
+    //     glBindVertexArray(0);
+
+    //     // Включаем тест глубины обратно
+    //     glEnable(GL_DEPTH_TEST);
+    // }
 };
 
 class Scene {
@@ -631,6 +602,14 @@ class Scene {
 
     void setEntities(std::vector<Entity*> entities) {
         this->entities = entities;
+    }
+    void removeEntity(Entity* entity) {
+        for (auto it = this->entities.begin(); it < this->entities.end(); it++) {
+            if((*it) == entity) {
+                this->entities.erase(it);
+            }
+        }
+        
     }
     void update() {
 

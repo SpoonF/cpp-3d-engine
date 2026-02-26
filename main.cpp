@@ -101,6 +101,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
+bool mouse_keys[8] = {false};
+
+void mouse_key_callback(GLFWwindow* window, int button, int action, int mods) {
+
+    if (action == GLFW_PRESS) {
+        mouse_keys[button] = true;
+        // std::cout << "Key pressed: " << button << std::endl; // Отладка
+    }
+    else if (action == GLFW_RELEASE) {
+        mouse_keys[button] = false;
+    }
+}
+
 bool isVec3InRange(const glm::vec3& v, const glm::vec3& min, const glm::vec3& max) {
     return (v.x >= min.x && v.x <= max.x &&
             v.y >= min.y && v.y <= max.y &&
@@ -131,6 +144,7 @@ int main() {
     glfwMakeContextCurrent(window);
 
     glfwSetKeyCallback(window, key_callback);
+    glfwSetMouseButtonCallback(window, mouse_key_callback);
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
@@ -160,7 +174,7 @@ int main() {
             for (size_t z = 0; z < 16; z++)
             {
                 if((y == 0 && std::rand() % 100 > 20) || std::rand() % 100 > 80) {
-                    Entity* block = new Entity(obj2, glm::vec3(x*2 + 2, y*2, z*2 + 2));
+                    Entity* block = new Entity(obj2, glm::vec3(x*2 + 2, y*2, z*2 + 2), EntityType::BLOCK);
                     // block->setPosition(glm::vec3(x*2 + 2, y*2, z*2 + 2));
                     scene.addEntity(block);
                 }
@@ -182,10 +196,13 @@ int main() {
     float jumpSpeed = 0.1f;
     bool isJump = false;
 
+    unsigned int viewPos = 1;
+
 
     // Где-то после создания окна
 
     float speedFall = .5f;
+
 
     auto jump = [&jumpProgress, &isJump, &isFall, &jumpSpeed, speedFreeFall](glm::vec3& pos, float deltaTime) {
         if(jumpProgress <= 2.f) {
@@ -219,95 +236,9 @@ int main() {
         }
     };
 
-
-
-    // camera->setViewCallback([&lastTime, &moveSpeed, &camera, speed, &fallSpeed, speedFreeFall, &isFly, &scene, &isFalling, &isJump, &jumpProgress](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
-
-    //     glm::vec3 oldposition = camera->getPosition();
-    //     glm::vec3 position = camera->getPosition();
-    //     moveSpeed = speed;
-
-    //     if (keys[GLFW_KEY_LEFT_CONTROL]){
-    //         moveSpeed *= 2;
-    //     }
-
-    //     if (keys[GLFW_KEY_W]){
-            
-    //         position += direction * glm::vec3(1,0,1) * deltaTime * moveSpeed;
-    //     }
-    //     if (keys[GLFW_KEY_S]){
-    //         position -= direction * glm::vec3(1,0,1) * deltaTime * moveSpeed;
-    //     }
-
-    //     if (keys[GLFW_KEY_D]){
-    //         position += right * glm::vec3(1,0,1) * deltaTime * moveSpeed;
-    //     }
-    //     if (keys[GLFW_KEY_A]){
-    //         position -= right * glm::vec3(1,0,1) * deltaTime * moveSpeed;
-    //     }
-
-    //     if (keys[GLFW_KEY_SPACE] && isFalling){
-    //         position += glm::vec3(0, 2, 0) * deltaTime * moveSpeed;
-    //     }
-    //     if (keys[GLFW_KEY_LEFT_SHIFT] && isFalling){
-    //         position -= glm::vec3(0, 2, 0) * deltaTime * moveSpeed;
-    //     }
-
-
-    //     if (keys[GLFW_KEY_SPACE] && !isFly && !isFalling){
-    //         isJump = true;
-    //     }  
-    //     if (keys[GLFW_KEY_LEFT_ALT]){
-    //         isFly = !isFly;
-    //     }
-
-    //     if(isFly == false && isJump == true) {
-    //         if(fallSpeed <= 0.5) {
-    //             fallSpeed += 2.4f * deltaTime;
-    //         }
-    //         if(jumpProgress <= 1) {
-    //             position.y += fallSpeed;
-    //             jumpProgress += fallSpeed;
-    //         }else {
-    //             isJump = false;
-    //             isFalling = true;
-    //         }
-    //     }else {
-    //         fallSpeed = 0.f;
-    //     }
-    //     if(isFly == false && isFalling == true) {
-    //         if(fallSpeed <= 0.5) {
-    //             fallSpeed += speedFreeFall * deltaTime;
-    //         }
-    //         if(position.y >= -200) {
-    //             position.y -= fallSpeed;
-    //         }
-    //     }else {
-    //         fallSpeed = 0.f;
-    //     }
-
-    //     // auto entities = scene.getEntities();
-
-    //     // for (size_t i = 0; i < entities.size(); i++)
-    //     // {
-    //     //     if(camera->checkSphereCollision(entities[i]->getPosition())) {
-    //     //         std::cout << "Пользователь Трогает: " << entities[i]->id << std::endl; 
-    //     //         auto vec = oldposition - position;
-    //     //         if(vec.y != 0.f) {
-    //     //             isFalling = false;
-    //     //             fallSpeed = 0.f;
-    //     //         }
-    //     //         position = camera->updatePosition(oldposition + (vec + vec));
-    //     //     }
-    //     // }
-        
-
-    //     camera->setPosition(position);
-    // });
-
-    Entity* headEntity = new Entity(Object3D("./objects/cube.obj", "./objects/ground.bmp"), glm::vec3(3, 13, 3));
+    Entity* headEntity = new Entity(Object3D("./objects/cube.obj", "./objects/ground.bmp"), glm::vec3(3, 13, 3), EntityType::BLOCK);
     scene.addEntity(headEntity);
-    camera->setViewCallback([&camera, &headEntity, speed, &scene, fall, jump, &isJump, &isFall](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
+    camera->setViewCallback([&camera, &headEntity, speed, &scene, fall, jump, &isJump, &isFall, &viewPos](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
 
 
         auto pos = headEntity->getPosition();
@@ -323,21 +254,24 @@ int main() {
 
         printf("[debag]: camera dir data x: %f, y: %f, z: %f \n", dir.x, dir.y, dir.z);
 
-        if (keys[GLFW_KEY_W]){
+        if (keys[GLFW_KEY_W]) {
             pos += dir * deltaTime * speed;
         }
-        if (keys[GLFW_KEY_S]){
+        if (keys[GLFW_KEY_S]) {
             pos -= dir * deltaTime * speed;
         }
 
-        if (keys[GLFW_KEY_D]){
+        if (keys[GLFW_KEY_D]) {
             pos += right * deltaTime * speed;
         }
-        if (keys[GLFW_KEY_A]){
+        if (keys[GLFW_KEY_A]) {
             pos -= right * deltaTime * speed;
         }
         if ((keys[GLFW_KEY_SPACE] && !isFall) || isJump) {
             jump(pos, deltaTime);
+        }
+        if(keys[GLFW_KEY_F5]) {
+            viewPos = (viewPos == 3) ? 1 : (viewPos + 1);
         }
 
         fall(pos, deltaTime);
@@ -352,7 +286,7 @@ int main() {
             if((*it)->id != headEntity->id) {
                 CollisionInfo info;
 
-                bool isCollise = headEntity->checkSphereCollision((*it), info);
+                bool isCollise = headEntity->checkBoxCollision((*it), info);
                 
                 if(isCollise) {
                     for (size_t i = 0; i < 3; i++)
@@ -384,9 +318,108 @@ int main() {
         
         headEntity->setPosition(pos);
 
-        camPos = pos - direction * 10.f;
-        camera->setPosition(camPos);
+        switch (viewPos)
+        {
+        case 1:
+            camera->setPosition(pos);
+            break;        
+        case 2:
+            camPos = pos - direction * 10.f;
+            camera->setPosition(camPos);
+            break;
+        case 3:
+            camera->setPosition(pos);
+            break;
+        }
+    });
 
+    float blockProcess = 0.f;
+    Entity* selectEntity = NULL;
+    float cd = 0;
+    camera->setViewCallback([&camera, &headEntity, &scene, &blockProcess, &selectEntity, obj2, &cd](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
+    
+        auto pos = headEntity->getPosition();
+
+        auto entities = scene.getEntities();
+
+
+
+        CollisionInfo info{};
+        if(entities.size() != 0) {
+            Entity* select = NULL;
+            for (float i = 0; i <= 8.0f; i += 0.1f) {
+                for (auto it = entities.begin(); it < entities.end(); it++) {
+                    if(Collision(pos + (direction * i)).checkSphereCollision((*it), info, .1f) && (*it) != headEntity) {
+                        select = (*it);
+                        break;
+                    };
+                }
+                if(select != NULL) break;
+            }
+            
+
+
+                selectEntity = select;
+                if(selectEntity == NULL) {
+                    blockProcess = 0.f;
+                }
+        }
+
+        // std::cout << mouse_keys[0] << std::endl;
+        if(mouse_keys[GLFW_MOUSE_BUTTON_1]) {      
+            if (selectEntity != NULL) {
+                blockProcess += deltaTime;
+            }
+            
+        }
+
+        if(mouse_keys[GLFW_MOUSE_BUTTON_2] && cd <= 0) {      
+            if (selectEntity != NULL) {
+                glm::vec3 pos = selectEntity->getPosition();
+                for (size_t i = 0; i < 3; i++){
+                    if(info.direction[i] != 0) {
+                        if(info.direction[i] > 0) {
+                            pos[i] -= 2.f;
+                        }else if(info.direction[i] < 0) {
+                            pos[i] += 2.f;
+                        }
+                    }
+                }
+                bool isEmpty = true;
+
+                for (auto it = entities.begin(); it < entities.end(); it++) {
+                    if((*it)->getPosition() == pos) {
+                        isEmpty = false;
+                    }
+                }
+                if(isEmpty) {
+                    Entity* en = new Entity(obj2, pos, EntityType::BLOCK);
+                    scene.addEntity(en);
+                }
+            }
+            cd = .2;
+            
+        }
+        if(cd > 0) {
+            cd -= deltaTime;
+        }
+
+        if(blockProcess >= 1.f) {
+            if(selectEntity->getType() == EntityType::BLOCK) {
+                scene.removeEntity(selectEntity);
+                blockProcess = 0.f;
+                selectEntity = NULL;
+            }
+        }
+
+        if(selectEntity == NULL) {
+            blockProcess = 0.f;
+        }
+        if(selectEntity != NULL) {
+            std::cout << "Block Id: " << selectEntity->id << std::endl;
+        }
+        
+        std::cout << "Crash Process: " << blockProcess << std::endl;
     });
 
     // Основной цикл
