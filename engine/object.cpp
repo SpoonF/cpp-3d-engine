@@ -23,3 +23,6 @@ Object3D::Object3D(const char* modelpath) {
 bool Object3D::operator<(const Object3D& other) const {
     return id < other.id;
 }
+bool Object3D::operator==(const Object3D& other) const {
+    return id == other.id;
+}

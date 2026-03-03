@@ -2,7 +2,7 @@
 layout (location = 0) in vec3 vertPos;
 layout (location = 1) in vec2 vertUV;
 layout (location = 2) in vec3 vertOffset;
-layout (location = 4) in mat4 vertRotation;
+// layout (location = 4) in mat4 vertRotation;
 
 out vec2 UV;
 uniform mat4 Projection;

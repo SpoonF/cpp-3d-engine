@@ -15,6 +15,7 @@ class Object3D {
     Object3D(const char* modelpath, const char* texturepath);
     Object3D(const char* modelpath);
     bool operator<(const Object3D& other) const;
+    bool operator==(const Object3D& other) const;
 };
 
 #endif

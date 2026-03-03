@@ -17,6 +17,8 @@
 
 #include "engine.cpp"
 
+// g++ main.cpp -o program -lGL -lglfw -lGLEW && ./program
+
 char* readShader(const char* filename) {
     std::ifstream file(filename);
 
@@ -167,22 +169,22 @@ int main() {
 
     Scene scene(window, camera);
 
-    for (size_t x = 0; x < 16; x++)
-    {
-        for (size_t y = 0; y < 2; y++)
-        {
-            for (size_t z = 0; z < 16; z++)
-            {
-                if((y == 0 && std::rand() % 100 > 20) || std::rand() % 100 > 80) {
-                    Entity* block = new Entity(obj2, glm::vec3(x*2 + 2, y*2, z*2 + 2), EntityType::BLOCK);
-                    // block->setPosition(glm::vec3(x*2 + 2, y*2, z*2 + 2));
-                    scene.addEntity(block);
-                }
+    // for (size_t x = 0; x < 16; x++)
+    // {
+    //     for (size_t y = 0; y < 2; y++)
+    //     {
+    //         for (size_t z = 0; z < 16; z++)
+    //         {
+    //             if((y == 0 && std::rand() % 100 > 20) || std::rand() % 100 > 80) {
+    //                 Block* block = new Block(obj2, glm::vec3(x*2 + 2, y*2, z*2 + 2));
+    //                 // block->setPosition(glm::vec3(x*2 + 2, y*2, z*2 + 2));
+    //                 scene.addEntity(block);
+    //             }
 
                 
-            }
-        }
-    }
+    //         }
+    //     }
+    // }
     
     float fallSpeed = 0;
     float speedFreeFall = 0.2;
@@ -193,7 +195,7 @@ int main() {
     float speed = 4;
     // bool isFly = true;
     float jumpProgress = 0;
-    float jumpSpeed = 0.1f;
+    float jumpSpeed = 0.15f;
     bool isJump = false;
 
     unsigned int viewPos = 1;
@@ -205,7 +207,7 @@ int main() {
 
 
     auto jump = [&jumpProgress, &isJump, &isFall, &jumpSpeed, speedFreeFall](glm::vec3& pos, float deltaTime) {
-        if(jumpProgress <= 2.f) {
+        if(jumpProgress <= 2.0f) {
             if(jumpSpeed > 0.f) {
                 jumpSpeed -= 0.002 * deltaTime;
             }
@@ -236,191 +238,190 @@ int main() {
         }
     };
 
-    Entity* headEntity = new Entity(Object3D("./objects/cube.obj", "./objects/ground.bmp"), glm::vec3(3, 13, 3), EntityType::BLOCK);
-    scene.addEntity(headEntity);
-    camera->setViewCallback([&camera, &headEntity, speed, &scene, fall, jump, &isJump, &isFall, &viewPos](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
+    Block* headBlock = new Block(Object3D("./objects/chel.obj", "./objects/ground.bmp"), glm::vec3(3, 13, 3));
+    scene.addEntity(headBlock);
+    // camera->setViewCallback([&camera, &headBlock, speed, &scene, fall, jump, &isJump, &isFall, &viewPos](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
+    //     auto pos = headBlock->getPosition();
+    //     auto oldPos = headBlock->getPosition();
+    //     auto camPos = camera->getPosition();
 
 
-        auto pos = headEntity->getPosition();
-        auto oldPos = headEntity->getPosition();
-        auto camPos = camera->getPosition();
+    //     // printf("[debag]: camera dir data x: %f, y: %f, z: %f \n", direction.x, direction.y, direction.z);
+    //     auto op = direction.x * direction.x + direction.z * direction.z;
+    //     printf("[debag]: camera op: %f\n", op);
+    //     glm::vec3 dir(std::clamp(direction.x / op, -1.f, 1.f), 0, std::clamp(direction.z / op, -1.f, 1.f));
+    //     glm::vec3 rig(0,0,1);
 
+    //     printf("[debag]: camera dir data x: %f, y: %f, z: %f \n", dir.x, dir.y, dir.z);
 
-        // printf("[debag]: camera dir data x: %f, y: %f, z: %f \n", direction.x, direction.y, direction.z);
-        auto op = direction.x * direction.x + direction.z * direction.z;
-        printf("[debag]: camera op: %f\n", op);
-        glm::vec3 dir(std::clamp(direction.x / op, -1.f, 1.f), 0, std::clamp(direction.z / op, -1.f, 1.f));
-        glm::vec3 rig(0,0,1);
+    //     if (keys[GLFW_KEY_W]) {
+    //         pos += dir * deltaTime * speed;
+    //     }
+    //     if (keys[GLFW_KEY_S]) {
+    //         pos -= dir * deltaTime * speed;
+    //     }
 
-        printf("[debag]: camera dir data x: %f, y: %f, z: %f \n", dir.x, dir.y, dir.z);
+    //     if (keys[GLFW_KEY_D]) {
+    //         pos += right * deltaTime * speed;
+    //     }
+    //     if (keys[GLFW_KEY_A]) {
+    //         pos -= right * deltaTime * speed;
+    //     }
+    //     if ((keys[GLFW_KEY_SPACE] && !isFall) || isJump) {
+    //         jump(pos, deltaTime);
+    //     }
+    //     if(keys[GLFW_KEY_F5]) {
+    //         viewPos = (viewPos == 2) ? 1 : (viewPos + 1);
+    //     }
 
-        if (keys[GLFW_KEY_W]) {
-            pos += dir * deltaTime * speed;
-        }
-        if (keys[GLFW_KEY_S]) {
-            pos -= dir * deltaTime * speed;
-        }
+    //     fall(pos, deltaTime);
 
-        if (keys[GLFW_KEY_D]) {
-            pos += right * deltaTime * speed;
-        }
-        if (keys[GLFW_KEY_A]) {
-            pos -= right * deltaTime * speed;
-        }
-        if ((keys[GLFW_KEY_SPACE] && !isFall) || isJump) {
-            jump(pos, deltaTime);
-        }
-        if(keys[GLFW_KEY_F5]) {
-            viewPos = (viewPos == 3) ? 1 : (viewPos + 1);
-        }
+    //     headBlock->setPosition(pos);
 
-        fall(pos, deltaTime);
+    //     auto entities = scene.getEntities();
+    //     bool isBottomCollise = false;
 
-        headEntity->setPosition(pos);
+    //     for (auto it = entities.begin(); it != entities.end(); it++)
+    //     {
+    //         if((*it)->id != headBlock->id) {
+    //             CollisionInfo info;
 
-        auto entities = scene.getEntities();
-        bool isBottomCollise = false;
-
-        for (auto it = entities.begin(); it != entities.end(); it++)
-        {
-            if((*it)->id != headEntity->id) {
-                CollisionInfo info;
-
-                bool isCollise = headEntity->checkBoxCollision((*it), info);
+    //             bool isCollise = headBlock->checkCollision((Block *)(*it), info);
                 
-                if(isCollise) {
-                    for (size_t i = 0; i < 3; i++)
-                    {
-                        auto direction = pos - oldPos;
+    //             if(isCollise) {
+    //                 for (size_t i = 0; i < 3; i++)
+    //                 {
+    //                     auto direction = pos - oldPos;
 
-                        for (size_t i = 0; i < 3; i++)
-                        {
-                            if(fabs(info.direction[i]) != 0) {
-                                if((info.direction[i] < 0 && direction[i] < 0) ||
-                                    (info.direction[i] > 0 && direction[i] > 0)) {
-                                    pos[i] = oldPos[i];
-                                }
-                            }
-                        }
+    //                     for (size_t i = 0; i < 3; i++)
+    //                     {
+    //                         if(fabs(info.direction[i]) != 0) {
+    //                             if((info.direction[i] < 0 && direction[i] < 0) ||
+    //                                 (info.direction[i] > 0 && direction[i] > 0)) {
+    //                                 pos[i] = oldPos[i];
+    //                             }
+    //                         }
+    //                     }
 
-                    }
+    //                 }
                     
-                }
+    //             }
 
-                if(!isBottomCollise && (!isCollise && info.direction.y < 0)) {
-                    isBottomCollise = true;
-                }
+    //             if(!isBottomCollise && (!isCollise && info.direction.y < 0)) {
+    //                 isBottomCollise = true;
+    //             }
                 
-            }
-        }
+    //         }
+    //     }
 
-        isFall = !isBottomCollise;
+    //     isFall = !isBottomCollise;
         
-        headEntity->setPosition(pos);
+    //     headBlock->setPosition(pos);
 
-        switch (viewPos)
-        {
-        case 1:
-            camera->setPosition(pos);
-            break;        
-        case 2:
-            camPos = pos - direction * 10.f;
-            camera->setPosition(camPos);
-            break;
-        case 3:
-            camera->setPosition(pos);
-            break;
-        }
-    });
+    //     switch (viewPos)
+    //     {
+    //     case 1:
+    //         camPos = pos + glm::vec3(0, 2.f,0);
+    //         camera->setPosition(camPos);
+    //         break;        
+    //     case 2:
+    //         camPos = pos - direction * 10.f;
+    //         camera->setPosition(camPos);
+    //         break;
+    //     case 3:
+    //         camera->setPosition(pos);
+    //         break;
+    //     }
+    // });
 
     float blockProcess = 0.f;
     Entity* selectEntity = NULL;
     float cd = 0;
-    camera->setViewCallback([&camera, &headEntity, &scene, &blockProcess, &selectEntity, obj2, &cd](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
+    // camera->setViewCallback([&camera, &headBlock, &scene, &blockProcess, &selectEntity, obj2, &cd](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
     
-        auto pos = headEntity->getPosition();
+    //     auto pos = camera->getPosition();
 
-        auto entities = scene.getEntities();
+    //     auto entities = scene.getEntities();
 
 
-
-        CollisionInfo info{};
-        if(entities.size() != 0) {
-            Entity* select = NULL;
-            for (float i = 0; i <= 8.0f; i += 0.1f) {
-                for (auto it = entities.begin(); it < entities.end(); it++) {
-                    if(Collision(pos + (direction * i)).checkSphereCollision((*it), info, .1f) && (*it) != headEntity) {
-                        select = (*it);
-                        break;
-                    };
-                }
-                if(select != NULL) break;
-            }
+    //     CollisionInfo info{};
+    //     if(entities.size() != 0) {
+    //         Entity* select = NULL;
+    //         for (float i = 0; i <= 8.0f; i += 0.1f) {
+    //             for (auto it = entities.begin(); it < entities.end(); it++) {
+    //                 if(CollisionSphere(pos + (direction * i), .1f)
+    //                     .checkCollision(new CollisionSphere((*it)->getPosition(), 1.f), info) && (*it) != headBlock) {
+    //                     select = (*it);
+    //                     break;
+    //                 };
+    //             }
+    //             if(select != NULL) break;
+    //         }
             
 
 
-                selectEntity = select;
-                if(selectEntity == NULL) {
-                    blockProcess = 0.f;
-                }
-        }
+    //             selectEntity = select;
+    //             if(selectEntity == NULL) {
+    //                 blockProcess = 0.f;
+    //             }
+    //     }
 
-        // std::cout << mouse_keys[0] << std::endl;
-        if(mouse_keys[GLFW_MOUSE_BUTTON_1]) {      
-            if (selectEntity != NULL) {
-                blockProcess += deltaTime;
-            }
+    //     // std::cout << mouse_keys[0] << std::endl;
+    //     if(mouse_keys[GLFW_MOUSE_BUTTON_1]) {      
+    //         if (selectEntity != NULL) {
+    //             blockProcess += deltaTime;
+    //         }
             
-        }
+    //     }
 
-        if(mouse_keys[GLFW_MOUSE_BUTTON_2] && cd <= 0) {      
-            if (selectEntity != NULL) {
-                glm::vec3 pos = selectEntity->getPosition();
-                for (size_t i = 0; i < 3; i++){
-                    if(info.direction[i] != 0) {
-                        if(info.direction[i] > 0) {
-                            pos[i] -= 2.f;
-                        }else if(info.direction[i] < 0) {
-                            pos[i] += 2.f;
-                        }
-                    }
-                }
-                bool isEmpty = true;
+    //     if(mouse_keys[GLFW_MOUSE_BUTTON_2] && cd <= 0) {      
+    //         if (selectEntity != NULL) {
+    //             glm::vec3 pos = selectEntity->getPosition();
+    //             for (size_t i = 0; i < 3; i++){
+    //                 if(info.direction[i] != 0) {
+    //                     if(info.direction[i] > 0) {
+    //                         pos[i] -= 2.f;
+    //                     }else if(info.direction[i] < 0) {
+    //                         pos[i] += 2.f;
+    //                     }
+    //                 }
+    //             }
+    //             bool isEmpty = true;
 
-                for (auto it = entities.begin(); it < entities.end(); it++) {
-                    if((*it)->getPosition() == pos) {
-                        isEmpty = false;
-                    }
-                }
-                if(isEmpty) {
-                    Entity* en = new Entity(obj2, pos, EntityType::BLOCK);
-                    scene.addEntity(en);
-                }
-            }
-            cd = .2;
+    //             for (auto it = entities.begin(); it < entities.end(); it++) {
+    //                 if((*it)->getPosition() == pos) {
+    //                     isEmpty = false;
+    //                 }
+    //             }
+    //             if(isEmpty) {
+    //                 Entity* en = new Entity(obj2, pos, EntityType::BLOCK);
+    //                 scene.addEntity(en);
+    //             }
+    //         }
+    //         cd = .2;
             
-        }
-        if(cd > 0) {
-            cd -= deltaTime;
-        }
+    //     }
+    //     if(cd > 0) {
+    //         cd -= deltaTime;
+    //     }
 
-        if(blockProcess >= 1.f) {
-            if(selectEntity->getType() == EntityType::BLOCK) {
-                scene.removeEntity(selectEntity);
-                blockProcess = 0.f;
-                selectEntity = NULL;
-            }
-        }
+    //     if(blockProcess >= 1.f) {
+    //         if(selectEntity->getType() == EntityType::BLOCK) {
+    //             scene.removeEntity(selectEntity);
+    //             blockProcess = 0.f;
+    //             selectEntity = NULL;
+    //         }
+    //     }
 
-        if(selectEntity == NULL) {
-            blockProcess = 0.f;
-        }
-        if(selectEntity != NULL) {
-            std::cout << "Block Id: " << selectEntity->id << std::endl;
-        }
+    //     if(selectEntity == NULL) {
+    //         blockProcess = 0.f;
+    //     }
+    //     if(selectEntity != NULL) {
+    //         std::cout << "Block Id: " << selectEntity->id << std::endl;
+    //     }
         
-        std::cout << "Crash Process: " << blockProcess << std::endl;
-    });
+    //     std::cout << "Crash Process: " << blockProcess << std::endl;
+    // });
 
     // Основной цикл
     while (isProgramRuning(window)) {
