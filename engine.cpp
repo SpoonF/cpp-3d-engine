@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <algorithm>
 #include <fstream>
 #include <vector>
 #include <string.h>
@@ -43,7 +44,7 @@ class Camera  {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         object = Object3D("./objects/cube.obj");
     }
-    glm::mat4 getView(float& deltaTime) {
+    glm::mat4 getView(float deltaTime) {
         glfwGetCursorPos(window, &xpos, &ypos);
 
         horizontalAngle += mouseSpeed * deltaTime * float(width/2 - xpos);
@@ -105,8 +106,10 @@ class Shader {
     GLFWwindow *window;
     Camera* camera;
 
-    int shaderId;
+    int selectShader;
+    std::map<const char*, int> instances;
     double lastTime;
+    double deltaTime;
     std::queue<std::function<void()>> drawQueue = std::queue<std::function<void()>>();
     char* readShader(const char* filename) {
         std::ifstream file(filename);
@@ -126,9 +129,9 @@ class Shader {
         return t;
     }
 
-    int initShaderProgram() {
-        char* vertexShaderSource = readShader("shaders/shader.vert");
-        char* fragmentShaderSource = readShader("shaders/shader.frag");
+    int initShaderProgram(const char* vert, const char* frag) {
+        char* vertexShaderSource = readShader(vert);
+        char* fragmentShaderSource = readShader(frag);
 
         // Создание шейдеров
         unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -293,15 +296,19 @@ class Shader {
         this->camera = camera;
         this->window = window;
 
+        instances.emplace("default", initShaderProgram("shaders/shader.vert", "shaders/shader.frag"));
+        selectShader = instances.at("default");
 
-        shaderId = initShaderProgram();
         lastTime = glfwGetTime();
     }
-    void draw() {
 
-        double currentTime = glfwGetTime();
-        float deltaTime = float(currentTime - lastTime);
-        lastTime = glfwGetTime();
+    void add(const char* name, const char* vert, const char* frag) {
+        instances.emplace(name, initShaderProgram(vert, frag));
+    }
+    void useShdr(const char* name) {
+        selectShader = instances.at(name);
+    }
+    void draw() {
 
         glm::mat4 Projection = camera->getProjection();
         glm::mat4 View = camera->getView(deltaTime);
@@ -311,7 +318,7 @@ class Shader {
         set("View", View);
         set("Model", Model);
 
-        glUseProgram(shaderId);
+        glUseProgram(selectShader);
 
         while (!drawQueue.empty())
         {
@@ -321,21 +328,26 @@ class Shader {
         // drawCrossPoint(shaderId);
         
     }
+    void updateDeltaTime() {
+        double currentTime = glfwGetTime();
+        deltaTime = float(currentTime - lastTime);
+        lastTime = glfwGetTime();
+    }
     glm::mat4 getModel() {
         return glm::mat4(1.0f);
     }
     void set(const char* name, glm::vec3& data) {
-        GLuint dataId = glGetUniformLocation(shaderId, name);
+        GLuint dataId = glGetUniformLocation(selectShader, name);
 
         glUniform3f(dataId, data.x, data.y, data.z);
     }
     void set(const char* name, int& data) {
-        GLuint dataId = glGetUniformLocation(shaderId, name);
+        GLuint dataId = glGetUniformLocation(selectShader, name);
 
         glUniform1i(dataId, data);
     }
     void set(char* name, glm::mat4& data) {
-        GLuint dataId = glGetUniformLocation(shaderId, name);
+        GLuint dataId = glGetUniformLocation(selectShader, name);
 
         glUniformMatrix4fv(dataId, 1, GL_FALSE, &data[0][0]);
     }
@@ -350,8 +362,8 @@ class Shader {
 class EntityCompentities {
 private:
     Object3D object;
-    std::vector<glm::vec3> positions;
 public:
+    std::vector<glm::vec3> positions;
     EntityCompentities(const Object3D& object) {
         this->object = object;
     }
@@ -359,7 +371,7 @@ public:
         this->object = object;
         this->addPosition(position);
     }
-    void addPosition(glm::vec3 position) {
+    void addPosition(glm::vec3& position) {
         this->positions.push_back(position);
     };
     std::vector<glm::vec3> getPositions() {
@@ -368,7 +380,6 @@ public:
     Object3D getObject() {
         return this->object;
     };
-
 };
 
 class Scene {
@@ -378,12 +389,40 @@ class Scene {
     public:
     std::vector<std::vector<int>> map;
     std::vector<Entity*> entities;
+    std::vector<Entity*> selectedEntities;
+    std::vector<int> transperents;
     Scene(GLFWwindow *window, Camera* camera) {
         this->window = window;
         shdr = new Shader(window, camera);
+        shdr->add("select", "shaders/shader.vert", "shaders/shaderOneColor.frag");
     }
-    void addEntity(Entity* entity) {
+    void addEntity(Entity* entity, bool isTransparent = false) {
         entities.push_back(entity);
+        if(isTransparent) {
+            transperents.push_back(entity->id);
+        }
+        
+    }
+    void selectEntity(Entity* entity) {
+        entity->isSelected = true;
+    }
+
+    void clearSelectedEntity() {
+        for (size_t i = 0; i < entities.size(); i++)
+        {
+            entities[i]->isSelected = false;
+        }
+        
+    }
+    std::vector<Entity*> getSelectedEntity() {
+        selectedEntities.clear();
+        for (size_t i = 0; i < entities.size(); i++)
+        {
+            if(entities[i]->isSelected == true) {
+                selectedEntities.push_back(entities[i]);
+            }
+        }
+        return selectedEntities;
     }
     std::vector<Entity*> getEntities() const {
         return entities;
@@ -398,39 +437,78 @@ class Scene {
                 this->entities.erase(it);
             }
         }
-        
     }
+
     void update() {
 
         std::vector<EntityCompentities> vec;
+        shdr->updateDeltaTime();
 
         for (size_t i = 0; i < entities.size(); i++)
         {
+            if(entities[i]->isSelected) {
+               continue;
+            }
+
             Object3D object = entities[i]->getObject();
             glm::vec3 position = entities[i]->getPosition();
+            
+            
 
             size_t j = 0;
 
-            for (;j < vec.size(); j++) {
-                if(vec[j].getObject() == object) {
-                    break;
-                };
-            }
+            auto it = std::find_if(vec.begin(), vec.end(), [&object](EntityCompentities ec) {
+                return ec.getObject() == object;
+            });
 
-            if (j == (vec.size() - 1)) {
+            if(it != vec.end()) {
+                vec.at(j).positions.push_back(position);
+            }else {
                 vec.push_back(EntityCompentities(object, position));
-            } else {
-                vec[j].addPosition(position);
             }
+           
         }
+
+        shdr->useShdr("default");
 
         for (size_t i = 0; i < vec.size(); i++)
         {
             shdr->addDraw(vec[i].getObject(), vec[i].getPositions());
         }
-        
 
-        
+        shdr->draw();
+
+        vec.clear();
+
+        auto selected = this->getSelectedEntity();
+
+        for (size_t i = 0; i < selected.size(); i++)
+        {
+            Object3D object = selected[i]->getObject();
+            glm::vec3 position = selected[i]->getPosition();
+            
+            size_t j = 0;
+
+            auto it = std::find_if(vec.begin(), vec.end(), [&object](EntityCompentities ec) {
+                return ec.getObject() == object;
+            });
+
+            // не отображать собственный блок
+
+            if(it != vec.end()) {
+                vec.at(j).positions.push_back(position);
+            }else {
+                vec.push_back(EntityCompentities(object, position));
+            }
+        }
+
+        shdr->useShdr("select");
+
+        for (size_t i = 0; i < vec.size(); i++)
+        {
+            shdr->addDraw(vec[i].getObject(), vec[i].getPositions());
+        }
+        this->clearSelectedEntity();
         
         shdr->draw();
         

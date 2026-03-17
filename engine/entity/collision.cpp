@@ -111,6 +111,8 @@ bool CollisionBox::checkCollision(CollisionBox* other, CollisionInfo& info) {
         (oPos.y <= (pos.y + size.y) && (oPos.y + oSize.y) >= pos.y) &&
         (oPos.z <= (pos.z + size.z) && (oPos.z + oSize.z) >= pos.z);
     
+    // printf("is collision: %i size: %f %f %f\n", collision, size.x, size.y, size.z);
+    
     if (collision) {
         // Есть коллизия
         info.Normal = glm::normalize(delta);

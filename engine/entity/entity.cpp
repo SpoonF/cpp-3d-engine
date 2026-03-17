@@ -1,8 +1,8 @@
 #include "entity.h"
 
-Entity::Entity(const Object3D& object, glm::vec3 position, EntityType type) {
-    this->position;
-    this->object;
+Entity::Entity(const Object3D& object, const glm::vec3& position, EntityType type) {
+    this->position = position;
+    this->object = object;
     this->type = type;
     this->count++;
     this->id = count;
@@ -10,12 +10,6 @@ Entity::Entity(const Object3D& object, glm::vec3 position, EntityType type) {
 bool Entity::constains(const glm::vec3& point) const {
     return glm::all(glm::greaterThanEqual(point, position)) && 
     glm::all(glm::lessThanEqual(point, position + 1.f));
-}
-void Entity::setRotate(glm::vec3 rotate) {
-    this->rotate = rotate;
-}
-glm::vec3 Entity::getRotate() {
-    return this->rotate;
 }
 Object3D Entity::getObject() {
     return this->object;
@@ -26,9 +20,23 @@ EntityType Entity::getType() {
 glm::vec3 Entity::getPosition() {
     return this->position;
 };
-void Entity::setPosition(glm::vec3 position) {
+void Entity::setPosition(const glm::vec3& position) {
     this->position = position;
 };
 
-Block::Block(const Object3D& object, glm::vec3 position) 
+
+Block::Block(const Object3D& object, const glm::vec3& position) 
 : Entity(object, position, EntityType::BLOCK), CollisionBox(object, position, glm::vec3(2.f)) {}
+
+void Block::setPosition(const glm::vec3& position) {
+    Entity::setPosition(position);
+    CollisionBox::setPosition(position);
+}
+
+Player::Player(const Object3D& object, const glm::vec3& position) 
+: Entity(object, position, EntityType::BLOCK), CollisionBox(object, position, glm::vec3(1.f, 3.7f, 1.f)) {}
+
+void Player::setPosition(const glm::vec3& position) {
+    Entity::setPosition(position);
+    CollisionBox::setPosition(position);
+}

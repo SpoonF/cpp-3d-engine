@@ -5,9 +5,9 @@
 #include "utils/model.cpp"
 
 class Object3D {
+public:
     int id;
     static inline int count = 0;
-    public:
     Model* model;
     imageBMP* texture;
     Object3D();
