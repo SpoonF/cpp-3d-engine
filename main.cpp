@@ -180,9 +180,11 @@ int main() {
 
     Scene scene(window, camera);
 
+
+
     for (size_t x = 0; x < 16; x++)
     {
-        for (size_t y = 0; y < 16; y++)
+        for (size_t y = 0; y < 1; y++)
         {
             for (size_t z = 0; z < 16; z++)
             {
@@ -195,6 +197,10 @@ int main() {
             }
         }
     }
+
+    LightBlock* light = new LightBlock(Object3D("./objects/lightCube.obj", "./objects/sun.bmp"), glm::vec3(46, 32, 21));
+
+    scene.addEntity(light);
     
     float fallSpeed = 0;
     float speedFreeFall = 0.2;
@@ -214,6 +220,19 @@ int main() {
     // Где-то после создания окна
 
     float speedFall = .5f;
+
+    
+
+    camera->setViewCallback([&light](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
+        glm::vec3 position = light->getPosition();
+
+        double y = std::sin(glfwGetTime() * 0.01) * 50.5;
+        double x = std::cos(glfwGetTime() * 0.01) * 50.5;
+        // double z = -std::cos(glfwGetTime() * 1.1) * 10.5;
+
+        light->setPosition(glm::vec3(x, y, 0));
+        
+    });
 
 
     auto jump = [&jumpProgress, &isJump, &isFall, &jumpSpeed, speedFreeFall](glm::vec3& pos, float deltaTime) {
@@ -249,7 +268,7 @@ int main() {
     };
 
     Player* headBlock = new Player(Object3D("./objects/chel.obj", "./objects/ground.bmp"), glm::vec3(3, 13, 3));
-    scene.addEntity(headBlock, true);
+    scene.addEntity(headBlock);
     camera->setViewCallback([&camera, &headBlock, speed, &scene, fall, jump, &isJump, &isFall, &viewPos](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
         auto pos = headBlock->getPosition();
         auto oldPos = headBlock->getPosition();

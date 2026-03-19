@@ -6,10 +6,20 @@
 #include "collision.cpp"
 
 enum EntityType {
-    BLOCK = 0,
+    BLOCK,
+    LIGHT,
+    PLAYER,
 };
 
-class Entity {
+class EntityOptions {
+    protected:
+        bool isLight = false;
+    public:
+        bool isLighting();
+    
+};
+
+class Entity: virtual protected EntityOptions {
 
 public:
     static inline int count = 0;
@@ -27,6 +37,8 @@ public:
     virtual void setPosition(const glm::vec3& position);
 };
 
+
+
 class Block: virtual public Entity, virtual public CollisionBox {
 public:
     Block(const Object3D& object, const glm::vec3& position);
@@ -43,6 +55,13 @@ public:
         Entity::getPosition,
         Entity::getObject;
     void setPosition(const glm::vec3& position) override ;
+};
+
+class LightBlock: public Block {
+protected:
+    bool isLight = true;
+public:
+    LightBlock(const Object3D& object, const glm::vec3& position);
 };
 
 

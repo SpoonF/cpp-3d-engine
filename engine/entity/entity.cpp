@@ -1,5 +1,9 @@
 #include "entity.h"
 
+bool EntityOptions::isLighting() {
+    return this->isLight;
+}
+
 Entity::Entity(const Object3D& object, const glm::vec3& position, EntityType type) {
     this->position = position;
     this->object = object;
@@ -34,9 +38,12 @@ void Block::setPosition(const glm::vec3& position) {
 }
 
 Player::Player(const Object3D& object, const glm::vec3& position) 
-: Entity(object, position, EntityType::BLOCK), CollisionBox(object, position, glm::vec3(1.f, 3.7f, 1.f)) {}
+: Entity(object, position, EntityType::PLAYER), CollisionBox(object, position, glm::vec3(1.f, 3.7f, 1.f)) {}
 
 void Player::setPosition(const glm::vec3& position) {
     Entity::setPosition(position);
     CollisionBox::setPosition(position);
 }
+
+LightBlock::LightBlock(const Object3D& object, const glm::vec3& position) 
+: Block(object, position), Entity(object, position, EntityType::LIGHT), CollisionBox(object, position, glm::vec3(2.f)) {}

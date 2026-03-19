@@ -80,7 +80,7 @@ class Camera  {
         );
     }
     glm::mat4 getProjection() {
-        return glm::perspective(glm::radians(fov), 4.f/3.f, 0.1f, 300.0f);
+        return glm::perspective(glm::radians(fov), 4.f/3.f, 0.1f, 100.0f);
     }
     void setViewCallback(CallbackType action) {
         callbacks_.push_back(action);
@@ -269,6 +269,14 @@ class Shader {
 
         glGenerateMipmap(GL_TEXTURE_2D);
         
+        
+        unsigned int normal;
+        glGenBuffers(1, &normal);
+        glBindBuffer(GL_ARRAY_BUFFER, normal);
+        glBufferData(GL_ARRAY_BUFFER, obj.model->normals.size() * sizeof(glm::vec3), &obj.model->normals[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        
         // Цвета
 
         glEnableVertexAttribArray(1);
@@ -280,12 +288,18 @@ class Shader {
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);	
         glVertexAttribDivisor(2, 1);    
+
+
+        glEnableVertexAttribArray(3);
+        glBindBuffer(GL_ARRAY_BUFFER, normal);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0);
+
+
         
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
 
         glBindVertexArray(VAO);
-        // glDrawArrays(GL_TRIANGLES, 0, object.model->vertices.size());
         glDrawArraysInstanced(GL_TRIANGLES, 0, obj.model->vertices.size(), instances.size());
 
         glDeleteVertexArrays(1, &VAO);
@@ -313,10 +327,14 @@ class Shader {
         glm::mat4 Projection = camera->getProjection();
         glm::mat4 View = camera->getView(deltaTime);
         glm::mat4 Model = getModel();
+        glm::mat3 ModelNormal = glm::mat3(glm::transpose(glm::inverse(Model)));
+        glm::vec3 viewPos = camera->getPosition();
 
         set("Projection", Projection);
         set("View", View);
         set("Model", Model);
+        set("ModelNormal", ModelNormal);
+        set("viewPos", viewPos);
 
         glUseProgram(selectShader);
 
@@ -338,7 +356,6 @@ class Shader {
     }
     void set(const char* name, glm::vec3& data) {
         GLuint dataId = glGetUniformLocation(selectShader, name);
-
         glUniform3f(dataId, data.x, data.y, data.z);
     }
     void set(const char* name, int& data) {
@@ -347,6 +364,11 @@ class Shader {
         glUniform1i(dataId, data);
     }
     void set(char* name, glm::mat4& data) {
+        GLuint dataId = glGetUniformLocation(selectShader, name);
+
+        glUniformMatrix4fv(dataId, 1, GL_FALSE, &data[0][0]);
+    }
+    void set(char* name, glm::mat3& data) {
         GLuint dataId = glGetUniformLocation(selectShader, name);
 
         glUniformMatrix4fv(dataId, 1, GL_FALSE, &data[0][0]);
@@ -444,16 +466,21 @@ class Scene {
         std::vector<EntityCompentities> vec;
         shdr->updateDeltaTime();
 
-        for (size_t i = 0; i < entities.size(); i++)
+        for (auto const &entity : entities)
         {
-            if(entities[i]->isSelected) {
-               continue;
-            }
+            // if(entities[i]->isSelected) {
+            //    continue;
+            // }
 
-            Object3D object = entities[i]->getObject();
-            glm::vec3 position = entities[i]->getPosition();
-            
-            
+
+
+
+            Object3D object = entity->getObject();
+            glm::vec3 position = entity->getPosition();
+
+            if(entity->getType() == EntityType::LIGHT) {
+                shdr->set("lightPos", position);
+            }
 
             size_t j = 0;
 
@@ -469,47 +496,11 @@ class Scene {
            
         }
 
-        shdr->useShdr("default");
-
         for (size_t i = 0; i < vec.size(); i++)
         {
             shdr->addDraw(vec[i].getObject(), vec[i].getPositions());
         }
 
-        shdr->draw();
-
-        vec.clear();
-
-        auto selected = this->getSelectedEntity();
-
-        for (size_t i = 0; i < selected.size(); i++)
-        {
-            Object3D object = selected[i]->getObject();
-            glm::vec3 position = selected[i]->getPosition();
-            
-            size_t j = 0;
-
-            auto it = std::find_if(vec.begin(), vec.end(), [&object](EntityCompentities ec) {
-                return ec.getObject() == object;
-            });
-
-            // не отображать собственный блок
-
-            if(it != vec.end()) {
-                vec.at(j).positions.push_back(position);
-            }else {
-                vec.push_back(EntityCompentities(object, position));
-            }
-        }
-
-        shdr->useShdr("select");
-
-        for (size_t i = 0; i < vec.size(); i++)
-        {
-            shdr->addDraw(vec[i].getObject(), vec[i].getPositions());
-        }
-        this->clearSelectedEntity();
-        
         shdr->draw();
         
     }
