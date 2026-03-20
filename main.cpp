@@ -175,6 +175,7 @@ int main() {
 
 
     Object3D obj2("./objects/cube.obj", "./objects/ground.bmp");
+    Object3D objSlab("./objects/slab.obj", "./objects/ground.bmp");
 
     Camera* camera = new Camera(window);
 
@@ -307,39 +308,49 @@ int main() {
 
         headBlock->setPosition(pos);
 
-        auto entities = scene.getEntities();
+        std::vector<Entity*> entities = scene.getEntities();
         bool isBottomCollise = false;
 
-        for (auto it = entities.begin(); it != entities.end(); it++)
+        for (auto const& entity : entities)
         {
-            if((*it)->id != headBlock->id) {
-                CollisionInfo info;
+            if(entity->id == headBlock->id) {
+                continue;
+            }
 
-                bool isCollise = headBlock->checkCollision(dynamic_cast<Block*>(*it), info);
-                
-                if(isCollise) {
+            CollisionInfo info;
+            bool isCollise;
+
+            if(entity->getType() == EntityType::BLOCK) {
+                isCollise = headBlock->checkCollision(dynamic_cast<Block*>(entity), info);
+            }else if(entity->getType() == EntityType::LIGHT) {
+                isCollise = headBlock->checkCollision(dynamic_cast<LightBlock*>(entity), info);
+            } else if(entity->getType() == EntityType::PLAYER) {
+                isCollise = headBlock->checkCollision(dynamic_cast<Player*>(entity), info);
+            }else if(entity->getType() == EntityType::SLAB) {
+                isCollise = headBlock->checkCollision(dynamic_cast<Slab*>(entity), info);
+            }
+            
+            if(isCollise) {
+                for (size_t i = 0; i < 3; i++)
+                {
+                    auto direction = pos - oldPos;
+
                     for (size_t i = 0; i < 3; i++)
                     {
-                        auto direction = pos - oldPos;
-
-                        for (size_t i = 0; i < 3; i++)
-                        {
-                            if(fabs(info.direction[i]) != 0) {
-                                if((info.direction[i] < 0 && direction[i] < 0) ||
-                                    (info.direction[i] > 0 && direction[i] > 0)) {
-                                    pos[i] = oldPos[i];
-                                }
+                        if(fabs(info.direction[i]) != 0.1) {
+                            if((info.direction[i] < 0 && direction[i] < 0) ||
+                                (info.direction[i] > 0 && direction[i] > 0)) {
+                                pos[i] = oldPos[i];
                             }
                         }
-
                     }
-                    
-                }
 
-                if(!isBottomCollise && (!isCollise && info.direction.y < 0)) {
-                    isBottomCollise = true;
                 }
                 
+            }
+
+            if(!isBottomCollise && (!isCollise && info.direction.y < 0)) {
+                isBottomCollise = true;
             }
         }
 
@@ -366,7 +377,7 @@ int main() {
     float blockProcess = 0.f;
     Entity* selectEntity = NULL;
     float cd = 0;
-    camera->setViewCallback([&camera, &headBlock, &scene, &blockProcess, &selectEntity, obj2, &cd](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
+    camera->setViewCallback([&camera, &headBlock, &scene, &blockProcess, &selectEntity, objSlab, &cd](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
     
         auto pos = camera->getPosition();
 
@@ -419,13 +430,14 @@ int main() {
                 }
                 bool isEmpty = true;
 
-                for (auto it = entities.begin(); it < entities.end(); it++) {
-                    if((*it)->getPosition() == pos) {
+                for (auto const& entity : entities) {
+                    if(entity->getPosition() == pos) {
                         isEmpty = false;
+                        break;
                     }
                 }
                 if(isEmpty) {
-                    Block* en = new Block(obj2, pos);
+                    Slab* en = new Slab(objSlab, pos);
                     scene.addEntity(en);
                 }
             }
@@ -437,7 +449,9 @@ int main() {
         }
 
         if(blockProcess >= 1.f) {
-            if(selectEntity->getType() == EntityType::BLOCK) {
+            bool isBrokable = selectEntity->getType() == EntityType::BLOCK || selectEntity->getType() == EntityType::SLAB;
+
+            if(isBrokable) {
                 scene.removeEntity(selectEntity);
                 blockProcess = 0.f;
                 selectEntity = NULL;

@@ -468,12 +468,6 @@ class Scene {
 
         for (auto const &entity : entities)
         {
-            // if(entities[i]->isSelected) {
-            //    continue;
-            // }
-
-
-
 
             Object3D object = entity->getObject();
             glm::vec3 position = entity->getPosition();

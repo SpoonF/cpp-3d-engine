@@ -9,6 +9,7 @@ enum EntityType {
     BLOCK,
     LIGHT,
     PLAYER,
+    SLAB,
 };
 
 class EntityOptions {
@@ -46,6 +47,10 @@ public:
         Entity::getPosition,
         Entity::getObject;
     void setPosition(const glm::vec3& position) override ;
+};
+class Slab: virtual public Block {
+public:
+    Slab(const Object3D& object, const glm::vec3& position);
 };
 
 class Player: virtual public Entity, virtual public CollisionBox {
