@@ -3,9 +3,10 @@
 
 Object3D::Object3D(){};
 
-Object3D::Object3D(Model* _model, imageBMP* _texture) {
-    model = _model;
-    texture = _texture;
+Object3D::Object3D(Model* model, imageBMP* _texture, Shader* shader) {
+    this->model = model;
+    this->texture = texture;
+    this->shader = shader;
     count++;
     id = count;
 }
@@ -26,3 +27,11 @@ bool Object3D::operator<(const Object3D& other) const {
 bool Object3D::operator==(const Object3D& other) const {
     return id == other.id;
 }
+
+ShaderOptions* Object3D::getOptions() {
+    return this->options;
+};
+void Object3D::draw() {
+
+    this->shader->drawObjectInstaced((*this));
+};

@@ -179,7 +179,9 @@ int main() {
 
     Camera* camera = new Camera(window);
 
-    Scene scene(window, camera);
+    Scene scene(window);
+
+
 
 
 
