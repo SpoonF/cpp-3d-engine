@@ -1,0 +1,13 @@
+#pragma once
+
+#include "../entity.h"
+#include "../collision_box.h"
+
+class Player: virtual public Entity, virtual public CollisionBox {
+public:
+    Player(const Object3D& object, const glm::vec3& position);
+    using
+        Entity::getPosition,
+        Entity::getObject;
+    void setPosition(const glm::vec3& position) override ;
+};

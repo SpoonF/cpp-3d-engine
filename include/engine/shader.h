@@ -1,5 +1,4 @@
-#ifndef SHADER_H
-#define SHADER_H
+#pragma once
 
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
@@ -14,28 +13,32 @@
 #include <map>
 #include <queue>
 #include <fstream>
+#include <functional>
 
-#include <camera.h>
-#include <object.h>
+#include "object.h"
+#include "camera.h"
 
 struct ShaderOptions {
-    const std::vector<glm::vec3>& positions;
+    std::vector<glm::vec3> positions;
 };
 
 class Shader {
-    GLFWwindow *window;
-    Camera* camera;
+    static GLFWwindow* window;
+    static Camera* camera;
 
     int selectShader;
     double lastTime;
     double deltaTime;
     std::queue<std::function<void()>> drawQueue = std::queue<std::function<void()>>();
+
     char* readShader(const char* filename);
 
-    public:
-    int initShaderProgram(const char* vert, const char* frag);
-    void drawObjectInstaced(const Object3D& obj);
-    Shader(GLFWwindow *window, Camera* camera);
+public:
+    void initShaderProgram(const char* vert, const char* frag);
+    void drawObjectInstaced(const Object3D& obj, const ShaderOptions& options);
+    static std::unique_ptr<Shader> create(const char* vert, const char* frag);
+
+    Shader(const char* vert, const char* frag);
     void draw();
     void updateDeltaTime();
     glm::mat4 getModel();
@@ -43,10 +46,9 @@ class Shader {
     void set(const char* name, int& data);
     void set(char* name, glm::mat4& data);
     void set(char* name, glm::mat3& data);
-    void addDraw(const Object3D& object);
-    void addDraw(const Object3D& object, const std::vector<glm::vec3>& instances);
-    void addDraw(const Object3D& object);
+    
+    // void addDraw(const Object3D& object);
+    // void addDraw(const Object3D& object, const std::vector<glm::vec3>& instances);
+    static void init(GLFWwindow *window, Camera* camera);
 };
-
-#endif
 

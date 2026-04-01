@@ -1,4 +1,4 @@
-#include "camera.h"
+#include "engine/camera.h"
 
 Camera::Camera(GLFWwindow* window) {
     position = {0,0,0};

@@ -19,30 +19,42 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "engine/entity/entity.cpp"
+// #include "../include/engine.h"
+#include "engine/object.cpp"
+#include "engine/camera.cpp"
+#include "engine/collision.cpp"
+#include "engine/collision_box.cpp"
+#include "engine/collision_sphere.cpp"
+#include "engine/entity.cpp"
+#include "engine/entity/block.cpp"
+#include "engine/entity/player.cpp"
+#include "engine/shader.cpp"
 
-class EntityCompentities {
-private:
-    Object3D object;
-public:
-    std::vector<glm::vec3> positions;
-    EntityCompentities(const Object3D& object) {
-        this->object = object;
-    }
-    EntityCompentities(const Object3D& object, glm::vec3 position) {
-        this->object = object;
-        this->addPosition(position);
-    }
-    void addPosition(glm::vec3& position) {
-        this->positions.push_back(position);
-    };
-    std::vector<glm::vec3> getPositions() {
-        return this->positions;
-    }
-    Object3D getObject() {
-        return this->object;
-    };
-};
+#include "utils/imageBMP.cpp"
+#include "utils/model.cpp"
+
+// class EntityCompentities {
+// private:
+//     Object3D object;
+// public:
+//     std::vector<glm::vec3> positions;
+//     EntityCompentities(const Object3D& object) {
+//         this->object = object;
+//     }
+//     EntityCompentities(const Object3D& object, glm::vec3 position) {
+//         this->object = object;
+//         this->addPosition(position);
+//     }
+//     void addPosition(glm::vec3& position) {
+//         this->positions.push_back(position);
+//     };
+//     std::vector<glm::vec3> getPositions() {
+//         return this->positions;
+//     }
+//     Object3D getObject() {
+//         return this->object;
+//     };
+// };
 
 class Scene {
     GLFWwindow* window;
@@ -99,40 +111,35 @@ class Scene {
 
     void update() {
 
-        // std::vector<EntityCompentities> vec;
-
-        // for (auto const &entity : entities)
-        // {
-
-        //     Object3D object = entity->getObject();
-        //     glm::vec3 position = entity->getPosition();
-
-        //     if(entity->getType() == EntityType::LIGHT) {
-        //         // shdr->set("lightPos", position);
-        //     }
-
-        //     size_t j = 0;
-
-        //     auto it = std::find_if(vec.begin(), vec.end(), [&object](EntityCompentities ec) {
-        //         return ec.getObject() == object;
-        //     });
-
-        //     if(it != vec.end()) {
-        //         vec.at(j).positions.push_back(position);
-        //     }else {
-        //         vec.push_back(EntityCompentities(object, position));
-        //     }
-           
-        // }
-
-        // for (size_t i = 0; i < vec.size(); i++)
-        // {
-
-        // }
+        std::map<Object3D, ShaderOptions> map;
 
         for (auto const &entity : entities)
         {
-           entity->getObject().draw();
+
+            Object3D object = entity->getObject();
+            glm::vec3 position = entity->getPosition();
+
+            if(entity->getType() == EntityType::LIGHT) {
+                // shdr->set("lightPos", position);
+            }
+
+            size_t j = 0;
+
+            if(map.count(object) == 0) {
+                ShaderOptions options{ {position} };
+                // map.insert({object, options});
+                map[object] = options;
+            }else {
+                map[object].positions.push_back(position);
+            }
+           
+        }
+
+        std::cout << map.size() << std::endl;
+
+        for (const auto &[object, options] : map)
+        {
+            object.render(options);
         }
 
         

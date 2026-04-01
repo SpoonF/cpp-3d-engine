@@ -1,5 +1,4 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
@@ -40,6 +39,6 @@ private:
     std::vector<CallbackType> callbacks_;
 };
 
-#endif
+
 
 

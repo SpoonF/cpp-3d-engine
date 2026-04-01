@@ -1,5 +1,4 @@
-#ifndef MODEL_H
-#define MODEL_H
+#pragma once
 
 #include <vector>
 #include <glm/vec3.hpp>
@@ -12,5 +11,3 @@ class Model {
     std::vector<glm::vec3> normals;
     Model(const char* filename);
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef IMAGEBMP_H
-#define IMAGEBMP_H
+#pragma once
 
 class imageBMP {
     public:
@@ -10,5 +9,3 @@ class imageBMP {
         unsigned char* data;
         imageBMP(const char* filename);
 };
-
-#endif

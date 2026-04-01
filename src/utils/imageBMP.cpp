@@ -1,4 +1,4 @@
-#include "imageBMP.h"
+#include "utils/imageBMP.h"
 
 #include <fstream>
 
