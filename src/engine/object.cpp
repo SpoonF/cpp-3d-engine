@@ -22,13 +22,14 @@ Object3D::Object3D(const char *modelpath, const char *texturepath, std::unique_p
 {
     this->model = new Model(modelpath);
     this->texture = new imageBMP(texturepath);
-    this->shader = new Shader("./shaders/shader.vert", "./shaders/shader.frag");
+    this->shader = new Shader("./shaders/block.vert", "./shaders/block.frag");
     count++;
     id = count;
 }
 Object3D::Object3D(const char* modelpath, const char* texturepath) {
     this->model = new Model(modelpath);
     this->texture = new imageBMP(texturepath);
+    this->shader = new Shader("./shaders/block.vert", "./shaders/block.frag");
     count++;
     id = count;
 }

@@ -1,4 +1,5 @@
 #include "engine/shader.h"
+
 #include "engine/object.h"
 #include "engine/camera.h"
 #include "utils/model.h"
@@ -77,99 +78,105 @@ void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& option
     
     this->draw();
 
-    // unsigned int VAO, VBO;
+    unsigned int VAO, VBO;
 
-    // glGenVertexArrays(1, &VAO);
-    // glGenBuffers(1, &VBO);
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
 
 
-    // glBindVertexArray(VAO);
-    // glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // glBufferData(GL_ARRAY_BUFFER, obj.model->vertices.size() * sizeof(glm::vec3), &obj.model->vertices[0], GL_STATIC_DRAW);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, obj.model->vertices.size() * sizeof(glm::vec3), &obj.model->vertices[0], GL_STATIC_DRAW);
 
-    // // Позиции
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    // glEnableVertexAttribArray(0);
+    // Позиции
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glEnableVertexAttribArray(0);
 
-    // if(options.positions.size()) {
-    //     unsigned int positionsVBO;
-    //     glGenBuffers(1, &positionsVBO);
-    //     glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
-    //     glBufferData(GL_ARRAY_BUFFER, options.positions.size() * sizeof(glm::vec3), &options.positions[0], GL_STATIC_DRAW);
-    //     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    if(options.positions.size()) {
+        unsigned int positionsVBO;
+        glGenBuffers(1, &positionsVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
+        glBufferData(GL_ARRAY_BUFFER, options.positions.size() * sizeof(glm::vec3), &options.positions[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    //     glEnableVertexAttribArray(2);
-    //     glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
-    //     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    //     glBindBuffer(GL_ARRAY_BUFFER, 0);	
-    //     glVertexAttribDivisor(2, 1);  
-    // }
-
-    
-    
-    // unsigned int uvBuffer;
-    // glGenBuffers(1, &uvBuffer);
-    // glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-    // glBufferData(GL_ARRAY_BUFFER, obj.model->uvs.size() * sizeof(glm::vec2), &obj.model->uvs[0], GL_STATIC_DRAW);
-    // glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // unsigned int texture;
-    // glGenTextures(1, &texture);
-    // glBindTexture(GL_TEXTURE_2D, texture);
-
-    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, obj.texture->width, obj.texture->height, 0, GL_BGR, GL_UNSIGNED_BYTE, obj.texture->data);
-
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-    // glGenerateMipmap(GL_TEXTURE_2D);
-    
-    
-    // unsigned int normal;
-    // glGenBuffers(1, &normal);
-    // glBindBuffer(GL_ARRAY_BUFFER, normal);
-    // glBufferData(GL_ARRAY_BUFFER, obj.model->normals.size() * sizeof(glm::vec3), &obj.model->normals[0], GL_STATIC_DRAW);
-    // glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);	
+        glVertexAttribDivisor(2, 1);  
+    }
 
     
-    // // Цвета
+    
+    unsigned int uvBuffer;
+    glGenBuffers(1, &uvBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+    glBufferData(GL_ARRAY_BUFFER, obj.model->uvs.size() * sizeof(glm::vec2), &obj.model->uvs[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    // glEnableVertexAttribArray(1);
-    // glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-    // glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, obj.texture->width, obj.texture->height, 0, GL_BGR, GL_UNSIGNED_BYTE, obj.texture->data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    
+    
+    unsigned int normal;
+    glGenBuffers(1, &normal);
+    glBindBuffer(GL_ARRAY_BUFFER, normal);
+    glBufferData(GL_ARRAY_BUFFER, obj.model->normals.size() * sizeof(glm::vec3), &obj.model->normals[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    
+    // Цвета
+
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
   
 
 
-    // glEnableVertexAttribArray(3);
-    // glBindBuffer(GL_ARRAY_BUFFER, normal);
-    // glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0);
+    glEnableVertexAttribArray(3);
+    glBindBuffer(GL_ARRAY_BUFFER, normal);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0);
 
 
     
-    // glBindBuffer(GL_ARRAY_BUFFER, 0);
-    // glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
-    // glBindVertexArray(VAO);
-    // glDrawArraysInstanced(GL_TRIANGLES, 0, obj.model->vertices.size(), options.positions.size());
+    glBindVertexArray(VAO);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, obj.model->vertices.size(), options.positions.size());
 
-    // glDeleteVertexArrays(1, &VAO);
-    // glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
 }
 
 std::unique_ptr<Shader> Shader::create(const char *vert, const char *frag)
 {
     auto instance = std::unique_ptr<Shader>();
     instance->initShaderProgram(vert, frag);
+
+    instance->lastTime = glfwGetTime();
     return instance;
 }
 
 Shader::Shader(const char *vert, const char *frag)
 {
     this->initShaderProgram(vert, frag);
+
+    this->lastTime = glfwGetTime();
 }
 
 void Shader::draw() {
+
+    this->updateDeltaTime();
 
     glm::mat4 Projection = Shader::camera->getProjection();
     glm::mat4 View = Shader::camera->getView(this->deltaTime);
@@ -183,7 +190,7 @@ void Shader::draw() {
     set("ModelNormal", ModelNormal);
     set("viewPos", viewPos);
 
-    // glUseProgram(this->selectShader);
+    glUseProgram(this->selectShader);
 
     // while (!this->drawQueue.empty())
     // {
@@ -195,8 +202,8 @@ void Shader::draw() {
 }
 void Shader::updateDeltaTime() {
     double currentTime = glfwGetTime();
-    deltaTime = float(currentTime - lastTime);
-    lastTime = glfwGetTime();
+    this->deltaTime = float(currentTime - this->lastTime);
+    this->lastTime = glfwGetTime();
 }
 glm::mat4 Shader::getModel() {
     return glm::mat4(1.0f);
@@ -224,8 +231,8 @@ void Shader::init(GLFWwindow* _window, Camera* _camera)
 {
     
     camera = _camera;
-    window = _window;
-
     std::cout << "Shader initialized with camera: " << camera << std::endl;
-
+    
+    window = _window;
+    std::cout << "Shader initialized with window: " << window << std::endl;
 }

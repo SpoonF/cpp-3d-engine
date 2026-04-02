@@ -19,7 +19,9 @@
 
 #include "engine.cpp"
 
-// g++ main.cpp -o program -lGL -lglfw -lGLEW && ./program
+// g++ src/main.cpp -I ./include -o program -lGL -lglfw -lGLEW && ./program
+
+// g++ src/main.cpp -I ./include -fsanitize=address -g -o program -lGL -lglfw -lGLEW && ./program
 
 char* readShader(const char* filename) {
     std::ifstream file(filename);
@@ -161,6 +163,17 @@ void Test() {
     // LightBlock* light = new LightBlock(Object3D("./objects/lightCube.obj", "./objects/sun.bmp"), glm::vec3(46, 32, 21));
 
     // scene.addEntity(light);
+
+    // camera->setViewCallback([&light](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
+    //     glm::vec3 position = light->getPosition();
+
+    //     double y = std::sin(glfwGetTime() * 0.01) * 50.5;
+    //     double x = std::cos(glfwGetTime() * 0.01) * 50.5;
+    //     // double z = -std::cos(glfwGetTime() * 1.1) * 10.5;
+
+    //     light->setPosition(glm::vec3(x, y, 0));
+        
+    // });
     
     // float fallSpeed = 0;
     // float speedFreeFall = 0.2;
@@ -183,16 +196,7 @@ void Test() {
 
     
 
-    // camera->setViewCallback([&light](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
-    //     glm::vec3 position = light->getPosition();
 
-    //     double y = std::sin(glfwGetTime() * 0.01) * 50.5;
-    //     double x = std::cos(glfwGetTime() * 0.01) * 50.5;
-    //     // double z = -std::cos(glfwGetTime() * 1.1) * 10.5;
-
-    //     light->setPosition(glm::vec3(x, y, 0));
-        
-    // });
 
 
     // auto jump = [&jumpProgress, &isJump, &isFall, &jumpSpeed, speedFreeFall](glm::vec3& pos, float deltaTime) {
@@ -487,11 +491,11 @@ int main() {
 
     Scene scene(window);
 
-    for (size_t x = 0; x < 3; x++)
+    for (size_t x = 0; x < 32; x++)
     {
         for (size_t y = 0; y < 1; y++)
         {
-            for (size_t z = 0; z < 2; z++)
+            for (size_t z = 0; z < 32; z++)
             {
                 if((y == 0 && std::rand() % 100 > 20) || std::rand() % 100 > 80) {
                     Block* block = new Block(glm::vec3(x*2 + 2, y*2, z*2 + 2));
@@ -501,164 +505,179 @@ int main() {
         }
     }
 
-    // float fallSpeed = 0;
-    // float speedFreeFall = 0.2;
-    // bool isFall = true;
+    LightBlock* light = new LightBlock(glm::vec3(46, 32, 21));
 
-    // float lastTime;
-    // float moveSpeed = 0;
-    // float speed = 4;
-    // // bool isFly = true;
-    // float jumpProgress = 0;
-    // float jumpSpeed = 0.15f;
-    // bool isJump = false;
+    scene.addEntity(light);
 
-    // unsigned int viewPos = 1;
+    camera->setViewCallback([&light](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
+        glm::vec3 position = light->getPosition();
 
+        double y = std::sin(glfwGetTime() * 0.1) * 50.5;
+        double x = std::cos(glfwGetTime() * 0.1) * 50.5;
+        // double z = -std::cos(glfwGetTime() * 1.1) * 10.5;
 
-    // // Где-то после создания окна
-
-    // float speedFall = .5f;
-
-
-    // auto jump = [&jumpProgress, &isJump, &isFall, &jumpSpeed, speedFreeFall](glm::vec3& pos, float deltaTime) {
-    //     if(jumpProgress <= 2.0f) {
-    //         if(jumpSpeed > 0.f) {
-    //             jumpSpeed -= 0.002 * deltaTime;
-    //         }
-
-    //         pos.y += jumpSpeed;
-    //         jumpProgress += jumpSpeed;
-    //         isJump = true;
-    //         isFall = false;
-    //     }else {
-    //         jumpProgress = 0;
-    //         jumpSpeed =  0.1f;
-    //         isJump = false;
-    //         isFall = true;
-    //     }
-    //     printf("%f", jumpProgress);
-
-    // };
-
-    // auto fall = [&isJump, &isFall, &fallSpeed, &speedFreeFall](glm::vec3& pos, float deltaTime) {
-    //     if(isFall) {
-    //         if(fallSpeed < 2.f) {
-    //             fallSpeed += speedFreeFall * deltaTime;
-    //         }
-
-    //         pos.y -= fallSpeed;
-    //     }else {
-    //         fallSpeed = 0;
-    //     }
-    // };
-
-    // auto chel = Object3D("./assets/models/chel.obj", "./assets/textures/ground.bmp");
-    // Player* headBlock = new Player(chel, glm::vec3(3, 13, 3));
-    // scene.addEntity(headBlock);
-    // camera->setViewCallback([&camera, &headBlock, speed, &scene, fall, jump, &isJump, &isFall, &viewPos](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
-    //     auto pos = headBlock->getPosition();
-    //     auto oldPos = headBlock->getPosition();
-    //     auto camPos = camera->getPosition();
-
-
-    //     // printf("[debag]: camera dir data x: %f, y: %f, z: %f \n", direction.x, direction.y, direction.z);
-    //     auto op = direction.x * direction.x + direction.z * direction.z;
-    //     // printf("[debag]: camera op: %f\n", op);
-    //     glm::vec3 dir(std::clamp(direction.x / op, -1.f, 1.f), 0, std::clamp(direction.z / op, -1.f, 1.f));
-    //     glm::vec3 rig(0,0,1);
-
-    //     // printf("[debag]: camera dir data x: %f, y: %f, z: %f \n", dir.x, dir.y, dir.z);
-
-    //     if (keys[GLFW_KEY_W]) {
-    //         pos += dir * deltaTime * speed;
-    //     }
-    //     if (keys[GLFW_KEY_S]) {
-    //         pos -= dir * deltaTime * speed;
-    //     }
-
-    //     if (keys[GLFW_KEY_D]) {
-    //         pos += right * deltaTime * speed;
-    //     }
-    //     if (keys[GLFW_KEY_A]) {
-    //         pos -= right * deltaTime * speed;
-    //     }
-    //     if ((keys[GLFW_KEY_SPACE] && !isFall) || isJump) {
-    //         jump(pos, deltaTime);
-    //     }
-    //     if(keys[GLFW_KEY_F5]) {
-    //         viewPos = (viewPos == 2) ? 1 : (viewPos + 1);
-    //     }
-
-    //     fall(pos, deltaTime);
-
-    //     headBlock->setPosition(pos);
-
-    //     std::vector<Entity*> entities = scene.getEntities();
-    //     bool isBottomCollise = false;
-
-    //     for (auto const& entity : entities)
-    //     {
-    //         if(entity->id == headBlock->id) {
-    //             continue;
-    //         }
-
-    //         CollisionInfo info;
-    //         bool isCollise;
-
-    //         if(entity->getType() == EntityType::BLOCK) {
-    //             isCollise = headBlock->checkCollision(dynamic_cast<Block*>(entity), info);
-    //         }else if(entity->getType() == EntityType::LIGHT) {
-    //             isCollise = headBlock->checkCollision(dynamic_cast<LightBlock*>(entity), info);
-    //         } else if(entity->getType() == EntityType::PLAYER) {
-    //             isCollise = headBlock->checkCollision(dynamic_cast<Player*>(entity), info);
-    //         }else if(entity->getType() == EntityType::SLAB) {
-    //             isCollise = headBlock->checkCollision(dynamic_cast<Slab*>(entity), info);
-    //         }
-            
-    //         if(isCollise) {
-    //             for (size_t i = 0; i < 3; i++)
-    //             {
-    //                 auto direction = pos - oldPos;
-
-    //                 for (size_t i = 0; i < 3; i++)
-    //                 {
-    //                     if(fabs(info.direction[i]) != 0.1) {
-    //                         if((info.direction[i] < 0 && direction[i] < 0) ||
-    //                             (info.direction[i] > 0 && direction[i] > 0)) {
-    //                             pos[i] = oldPos[i];
-    //                         }
-    //                     }
-    //                 }
-
-    //             }
-                
-    //         }
-
-    //         if(!isBottomCollise && (!isCollise && info.direction.y < 0)) {
-    //             isBottomCollise = true;
-    //         }
-    //     }
-
-    //     isFall = !isBottomCollise;
+        light->setPosition(glm::vec3(x, y, 0));
         
-    //     headBlock->setPosition(pos);
+    });
 
-    //     switch (viewPos)
-    //     {
-    //     case 1:
-    //         camPos = pos + glm::vec3(-.5f, 2.f,-.5f);
-    //         camera->setPosition(camPos);
-    //         break;        
-    //     case 2:
-    //         camPos = (pos + glm::vec3(-.5f, 2.f,-.5f)) - direction * 10.f;
-    //         camera->setPosition(camPos);
-    //         break;
-    //     case 3:
-    //         camera->setPosition(pos);
-    //         break;
-    //     }
-    // });
+    float fallSpeed = 0;
+    float speedFreeFall = 0.2;
+    bool isFall = true;
+
+    float lastTime;
+    float moveSpeed = 0;
+    float speed = 4;
+    // bool isFly = true;
+    float jumpProgress = 0;
+    float jumpSpeed = 0.15f;
+    bool isJump = false;
+
+    unsigned int viewPos = 1;
+
+
+    // Где-то после создания окна
+
+    float speedFall = .5f;
+
+
+    auto jump = [&jumpProgress, &isJump, &isFall, &jumpSpeed, speedFreeFall](glm::vec3& pos, float deltaTime) {
+        if(jumpProgress <= 2.0f) {
+            if(jumpSpeed > 0.f) {
+                jumpSpeed -= 0.002 * deltaTime;
+            }
+
+            pos.y += jumpSpeed;
+            jumpProgress += jumpSpeed;
+            isJump = true;
+            isFall = false;
+        }else {
+            jumpProgress = 0;
+            jumpSpeed =  0.1f;
+            isJump = false;
+            isFall = true;
+        }
+        printf("%f", jumpProgress);
+
+    };
+
+    auto fall = [&isJump, &isFall, &fallSpeed, &speedFreeFall](glm::vec3& pos, float deltaTime) {
+        if(isFall) {
+            if(fallSpeed < 2.f) {
+                fallSpeed += speedFreeFall * deltaTime;
+            }
+
+            pos.y -= fallSpeed;
+        }else {
+            fallSpeed = 0;
+        }
+    };
+
+    auto chel = Object3D("./assets/models/chel.obj", "./assets/textures/ground.bmp");
+    Player* headBlock = new Player(chel, glm::vec3(3, 13, 3));
+    scene.addEntity(headBlock);
+    camera->setViewCallback([&camera, &headBlock, speed, &scene, fall, jump, &isJump, &isFall, &viewPos](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
+        auto pos = headBlock->getPosition();
+        auto oldPos = headBlock->getPosition();
+        auto camPos = camera->getPosition();
+
+
+        // printf("[debag]: camera dir data x: %f, y: %f, z: %f \n", direction.x, direction.y, direction.z);
+        auto op = direction.x * direction.x + direction.z * direction.z;
+        // printf("[debag]: camera op: %f\n", op);
+        glm::vec3 dir(std::clamp(direction.x / op, -1.f, 1.f), 0, std::clamp(direction.z / op, -1.f, 1.f));
+        glm::vec3 rig(0,0,1);
+
+        // printf("[debag]: camera dir data x: %f, y: %f, z: %f \n", dir.x, dir.y, dir.z);
+
+        if (keys[GLFW_KEY_W]) {
+            pos += dir * deltaTime * speed;
+        }
+        if (keys[GLFW_KEY_S]) {
+            pos -= dir * deltaTime * speed;
+        }
+
+        if (keys[GLFW_KEY_D]) {
+            pos += right * deltaTime * speed;
+        }
+        if (keys[GLFW_KEY_A]) {
+            pos -= right * deltaTime * speed;
+        }
+        if ((keys[GLFW_KEY_SPACE] && !isFall) || isJump) {
+            jump(pos, deltaTime);
+        }
+        if(keys[GLFW_KEY_F5]) {
+            viewPos = (viewPos == 2) ? 1 : (viewPos + 1);
+        }
+
+        fall(pos, deltaTime);
+
+        headBlock->setPosition(pos);
+
+        std::vector<Entity*> entities = scene.getEntities();
+        bool isBottomCollise = false;
+
+        for (auto const& entity : entities)
+        {
+            if(entity->id == headBlock->id) {
+                continue;
+            }
+
+            CollisionInfo info;
+            bool isCollise;
+
+            if(entity->getType() == EntityType::BLOCK) {
+                isCollise = headBlock->checkCollision(dynamic_cast<Block*>(entity), info);
+            }else if(entity->getType() == EntityType::LIGHT) {
+                isCollise = headBlock->checkCollision(dynamic_cast<LightBlock*>(entity), info);
+            } else if(entity->getType() == EntityType::PLAYER) {
+                isCollise = headBlock->checkCollision(dynamic_cast<Player*>(entity), info);
+            }else if(entity->getType() == EntityType::SLAB) {
+                isCollise = headBlock->checkCollision(dynamic_cast<Slab*>(entity), info);
+            }
+            
+            if(isCollise) {
+                for (size_t i = 0; i < 3; i++)
+                {
+                    auto direction = pos - oldPos;
+
+                    for (size_t i = 0; i < 3; i++)
+                    {
+                        if(fabs(info.direction[i]) != 0.1) {
+                            if((info.direction[i] < 0 && direction[i] < 0) ||
+                                (info.direction[i] > 0 && direction[i] > 0)) {
+                                pos[i] = oldPos[i];
+                            }
+                        }
+                    }
+
+                }
+                
+            }
+
+            if(!isBottomCollise && (!isCollise && info.direction.y < 0)) {
+                isBottomCollise = true;
+            }
+        }
+
+        isFall = !isBottomCollise;
+        
+        headBlock->setPosition(pos);
+
+        switch (viewPos)
+        {
+        case 1:
+            camPos = pos + glm::vec3(-.5f, 2.f,-.5f);
+            camera->setPosition(camPos);
+            break;        
+        case 2:
+            camPos = (pos + glm::vec3(-.5f, 2.f,-.5f)) - direction * 10.f;
+            camera->setPosition(camPos);
+            break;
+        case 3:
+            camera->setPosition(pos);
+            break;
+        }
+    });
 
 
     double lastTimeF = glfwGetTime();

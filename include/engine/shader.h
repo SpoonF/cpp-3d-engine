@@ -27,8 +27,8 @@ class Shader {
     static Camera* camera;
 
     int selectShader;
-    double lastTime;
-    double deltaTime;
+    double lastTime = 0;
+    double deltaTime = 0;
     std::queue<std::function<void()>> drawQueue = std::queue<std::function<void()>>();
 
     char* readShader(const char* filename);
