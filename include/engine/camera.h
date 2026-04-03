@@ -15,6 +15,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "entity.h"
+
 class Camera  {
     glm::vec3 position;
     float horizontalAngle = 3.14f;
@@ -35,6 +37,8 @@ class Camera  {
     void setViewCallback(CallbackType action);
     void setPosition(const glm::vec3& pos);
     glm::vec3 getPosition();
+
+    bool isWithinDistance(const Entity& other, float distance) const;
 private:
     std::vector<CallbackType> callbacks_;
 };

@@ -15,11 +15,10 @@ public:
     Model* model;
     imageBMP* texture;
     Shader* shader;
-    static std::vector<Object3D&> instances;
+    // static std::vector<Object3D&> instances;
     Object3D() = default;
-    Object3D(Model* _model, imageBMP* _texture, std::unique_ptr<Shader> shader);
-    Object3D(Model* _model, std::unique_ptr<Shader> shader);
-    Object3D(const char* modelpath, const char* texturepath, std::unique_ptr<Shader> shader);
+    Object3D(Model* _model, imageBMP* _texture);
+    Object3D(Model* _model);
     Object3D(const char* modelpath, const char* texturepath);
     Object3D(const char* modelpath);
     bool operator<(const Object3D& other) const;

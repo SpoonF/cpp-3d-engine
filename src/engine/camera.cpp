@@ -59,3 +59,13 @@ void Camera::setPosition(const glm::vec3& pos)  {
 glm::vec3 Camera::getPosition()  {
     return this->position;
 }
+
+bool Camera::isWithinDistance(const Entity &other, float distance) const
+{
+    glm::vec3 dist = this->position - other.position;
+
+    if(abs(dist.x) > distance || abs(dist.y) > distance || abs(dist.z) > distance) {
+        return false;
+    }
+    return true;
+}

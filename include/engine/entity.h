@@ -16,12 +16,15 @@ enum EntityType {
 class EntityOptions {
     protected:
         bool isLight = false;
+        bool isCollise = true;
     public:
         bool isLighting();
+        bool isCollisable();
+        void setCollisable(bool value);
     
 };
 
-class Entity: virtual protected EntityOptions {
+class Entity: public EntityOptions {
 
 public:
     static inline int count = 0;
@@ -33,9 +36,18 @@ public:
     bool isSelected = false;
     Entity(const Object3D& object, const glm::vec3& position, EntityType type);
     Entity(const glm::vec3& position, EntityType type);
-    bool constains(const glm::vec3& point) const;
+    bool contains(const glm::vec3& point) const;
     Object3D getObject();
+
     EntityType getType();
+    bool isType(EntityType type);
+
     virtual glm::vec3 getPosition();
     virtual void setPosition(const glm::vec3& position);
+    void move(const glm::vec3& position);
+
+    bool isWithinDistance(const Entity& other, float distance) const;
+    bool isWithinDistance(Entity* other, float distance) const;
+    bool isWithinDistance(const glm::vec3 &position, float distance) const;
+
 };

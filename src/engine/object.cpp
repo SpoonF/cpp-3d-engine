@@ -5,24 +5,14 @@
 
 
 
-Object3D::Object3D(Model* model, imageBMP* texture, std::unique_ptr<Shader> shader) {
+Object3D::Object3D(Model* model, imageBMP* texture) {
     this->model = model;
     this->texture = texture;
-    this->shader = shader.get();
     count++;
     id = count;
 }
-Object3D::Object3D(Model* model, std::unique_ptr<Shader> shader) {
+Object3D::Object3D(Model* model) {
     this->model = model;
-    this->shader = shader.get();
-    count++;
-    id = count;
-}
-Object3D::Object3D(const char *modelpath, const char *texturepath, std::unique_ptr<Shader> shader)
-{
-    this->model = new Model(modelpath);
-    this->texture = new imageBMP(texturepath);
-    this->shader = new Shader("./shaders/block.vert", "./shaders/block.frag");
     count++;
     id = count;
 }
@@ -35,6 +25,7 @@ Object3D::Object3D(const char* modelpath, const char* texturepath) {
 }
 Object3D::Object3D(const char* modelpath) {
     this->model = new Model(modelpath);
+    this->shader = new Shader("./shaders/block.vert", "./shaders/no-texture.frag");
 
     count++;
     id = count;
@@ -49,8 +40,6 @@ bool Object3D::operator==(const Object3D& other) const {
 void Object3D::render(const ShaderOptions& options) const {
 
     const Object3D obj = (*this);
-
-    // ShaderOptions opt;
 
     this->shader->drawObjectInstaced(obj, options);
 };

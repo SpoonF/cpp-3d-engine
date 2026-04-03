@@ -6,18 +6,17 @@ in vec3 FragPos;
 
 out vec3 color;
 
-uniform sampler2D textureSampler;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
-float ambinatStrength = 0.01;
-vec3 lightColor = vec3(2.55, 2.55, 2.55);
-float specularStrength = 0.01;
+float ambinatStrength = 0.1;
+vec3 lightColor = vec3(2);
+float specularStrength = 0.1;
+vec3 baseColor = vec3(1);
 
 
 void main()
 {
-    vec3 textur = texture(textureSampler, UV).rgb;
 
     vec3 ambiant = ambinatStrength * lightColor;
     
@@ -32,12 +31,9 @@ void main()
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
 
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 2);
     vec3 specular = specularStrength * spec * lightColor;
-    vec3 result = (ambiant + diffuse + specular) * textur;
+    vec3 result = (ambiant + diffuse + specular) * baseColor;
 
     color = vec3(result);
-
-    // vec3 result = ambiant * textur;
-    // color = vec4(result);
 }

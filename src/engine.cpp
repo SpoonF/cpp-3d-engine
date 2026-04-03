@@ -7,6 +7,7 @@
 #include <queue>
 #include <functional>
 #include <map>
+#include <algorithm>
 
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
@@ -19,7 +20,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-// #include "../include/engine.h"
+
+#include "config.h"
 #include "engine/object.cpp"
 #include "engine/camera.cpp"
 #include "engine/collision.cpp"
@@ -33,38 +35,17 @@
 #include "utils/imageBMP.cpp"
 #include "utils/model.cpp"
 
-// class EntityCompentities {
-// private:
-//     Object3D object;
-// public:
-//     std::vector<glm::vec3> positions;
-//     EntityCompentities(const Object3D& object) {
-//         this->object = object;
-//     }
-//     EntityCompentities(const Object3D& object, glm::vec3 position) {
-//         this->object = object;
-//         this->addPosition(position);
-//     }
-//     void addPosition(glm::vec3& position) {
-//         this->positions.push_back(position);
-//     };
-//     std::vector<glm::vec3> getPositions() {
-//         return this->positions;
-//     }
-//     Object3D getObject() {
-//         return this->object;
-//     };
-// };
-
 class Scene {
     GLFWwindow* window;
-    public:
+    Camera *camera;
+public:
     std::vector<std::vector<int>> map;
     std::vector<Entity*> entities;
     std::vector<Entity*> selectedEntities;
     std::vector<int> transperents;
-    Scene(GLFWwindow *window) {
+    Scene(GLFWwindow *window, Camera *camera) {
         this->window = window;
+        this->camera = camera;
     }
     void addEntity(Entity* entity, bool isTransparent = false) {
         entities.push_back(entity);
@@ -109,25 +90,52 @@ class Scene {
         }
     }
 
+    std::vector<Entity*> getEntitiesWithinDistance(float distance = RENDER_DISTANCE * 2) {
+        std::vector<Entity*> vec;
+
+        for (auto const &entity : entities) {
+            if(camera->isWithinDistance(*entity, distance)) {
+                vec.push_back(entity);
+            }
+        }
+
+        return vec;
+        
+    }
+
+    Entity* getEntityByPosition(const glm::vec3 &pos) {
+
+        for (auto const &entity : entities) {
+            if(entity->isWithinDistance(pos, 1)) {
+                return entity;
+            }
+        }
+
+        return nullptr;
+        
+    }
+
     void update() {
 
         std::map<Object3D, ShaderOptions> map;
+        glm::vec3 lightPos;
+        
 
         for (auto const &entity : entities)
         {
+            if(!camera->isWithinDistance(*entity, RENDER_DISTANCE * 2)) {
+                continue;
+            }
 
             Object3D object = entity->getObject();
             glm::vec3 position = entity->getPosition();
 
-            if(entity->getType() == EntityType::LIGHT) {
-                // shdr->set("lightPos", position);
+            if(entity->isType(EntityType::LIGHT)) {
+                lightPos = position;
             }
-
-            size_t j = 0;
 
             if(map.count(object) == 0) {
                 ShaderOptions options{ {position} };
-                // map.insert({object, options});
                 map[object] = options;
             }else {
                 map[object].positions.push_back(position);
@@ -135,10 +143,11 @@ class Scene {
            
         }
 
-        std::cout << map.size() << std::endl;
+        // std::cout << map.size() << std::endl;
 
         for (const auto &[object, options] : map)
         {
+            object.shader->set("lightPos", lightPos);
             object.render(options);
         }
 

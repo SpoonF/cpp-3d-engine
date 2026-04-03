@@ -78,6 +78,8 @@ void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& option
     
     this->draw();
 
+    
+
     unsigned int VAO, VBO;
 
     glGenVertexArrays(1, &VAO);
@@ -93,6 +95,7 @@ void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& option
     glEnableVertexAttribArray(0);
 
     if(options.positions.size()) {
+
         unsigned int positionsVBO;
         glGenBuffers(1, &positionsVBO);
         glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
@@ -114,16 +117,19 @@ void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& option
     glBufferData(GL_ARRAY_BUFFER, obj.model->uvs.size() * sizeof(glm::vec2), &obj.model->uvs[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    if(obj.texture) {
+        unsigned int texture;
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, obj.texture->width, obj.texture->height, 0, GL_BGR, GL_UNSIGNED_BYTE, obj.texture->data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, obj.texture->width, obj.texture->height, 0, GL_BGR, GL_UNSIGNED_BYTE, obj.texture->data);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-    glGenerateMipmap(GL_TEXTURE_2D);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+
     
     
     unsigned int normal;
