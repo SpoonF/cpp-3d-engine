@@ -19,9 +19,11 @@
 
 #include "engine.cpp"
 
-// g++ src/main.cpp -I ./include -o program -lGL -lglfw -lGLEW && ./program
+// g++ src/main.cpp -o game -I ./include -lGL -lglfw -lGLEW && ./program
 
-// g++ src/main.cpp -I ./include -fsanitize=address -g -o program -lGL -lglfw -lGLEW && ./program
+// g++ src/main.cpp -fsanitize=address -g -o game -I ./include -lGL -lglfw -lGLEW && ./program
+
+// clang++ src/main.cpp -o build/game -fsanitize=address -g -Iinclude -lglew32 -lglfw3 -lgdi32 -lopengl32 -luser32 ; ./build/game
 
 bool isProgramRuning(GLFWwindow* window) {
     return !glfwWindowShouldClose(window) &&
@@ -109,30 +111,26 @@ int main() {
 
     Shader::init(window, camera);
 
-    Scene scene(window, camera);
+    Scene *scene = new Scene(window, camera);
+
+    
+
+    World* world;
 
     
     printf("Loading terrain...\n");
 
-    for (size_t x = 0; x < 256; x++)
-    {
-        for (size_t y = 0; y < 6; y++)
-        {
-            for (size_t z = 0; z < 256; z++)
-            {
-                Block* block = new Block(glm::vec3(x*2 + 2, y*2, z*2 + 2));
-                scene.addEntity(block);
-            }
-        }
-    }
+    world->generate(8);
     
     printf("Terrain is load...\n");
     
 
+    scene->initWorld(world);
+
     LightBlock* light = new LightBlock(glm::vec3(46, 32, 21));
     light->setCollisable(false);
 
-    scene.addEntity(light);
+    scene->addEntity(light);
 
     float fallSpeed = 0;
     float speedFreeFall = 0.2;
@@ -185,13 +183,9 @@ int main() {
         }
     };
 
-    auto chel = Object3D("./assets/models/chel.obj");
-    Player* headBlock = new Player(chel, glm::vec3(64*2, 20, 64*2));
-    scene.addEntity(headBlock);
-    camera->setViewCallback([&camera, &headBlock, speed, &scene, fall, jump, &isJump, &isFall, &viewPos, &light](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
-        auto pos = headBlock->getPosition();
-        auto oldPos = headBlock->getPosition();
-        auto camPos = camera->getPosition();
+    camera->setViewCallback([&camera, speed, &scene, fall, jump, &isJump, &isFall, &viewPos, &light, &world](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
+        glm::vec3 pos = camera->getPosition();
+        glm::vec3 oldPos = camera->getPosition();
 
 
         // printf("[debag]: camera dir data x: %f, y: %f, z: %f \n", direction.x, direction.y, direction.z);
@@ -224,34 +218,24 @@ int main() {
 
         fall(pos, deltaTime);
 
-        headBlock->setPosition(pos);
+        // camera->setPosition(pos);
 
-        std::vector<Entity*> entities = scene.getEntitiesWithinDistance(10);
+        std::vector<Entity*> entities = world->getChunk(glm::vec2(2))->entities;
         bool isBottomCollise = false;
+
+        CollisionInfo info;
 
         for (auto const& entity : entities)
         {
-            if(entity->id == headBlock->id) {
-                continue;
-            }
             if(!entity->isCollisable()) {
                 continue;
             }
+            bool isCollides;
 
-            CollisionInfo info;
-            bool isCollise;
-
-            if(entity->getType() == EntityType::BLOCK) {
-                isCollise = headBlock->checkCollision(dynamic_cast<Block*>(entity), info);
-            }else if(entity->getType() == EntityType::LIGHT) {
-                isCollise = headBlock->checkCollision(dynamic_cast<LightBlock*>(entity), info);
-            } else if(entity->getType() == EntityType::PLAYER) {
-                isCollise = headBlock->checkCollision(dynamic_cast<Player*>(entity), info);
-            }else if(entity->getType() == EntityType::SLAB) {
-                isCollise = headBlock->checkCollision(dynamic_cast<Slab*>(entity), info);
-            }
+            CollisionBox* coll = new CollisionBox(pos, glm::vec3(1.f));
+            isCollides = dynamic_cast<CollisionBox*>(entity)->checkCollision(coll, info);
             
-            if(isCollise) {
+            if(isCollides) {
                 for (size_t i = 0; i < 3; i++)
                 {
                     auto direction = pos - oldPos;
@@ -270,32 +254,14 @@ int main() {
                 
             }
 
-            if(!isBottomCollise && (!isCollise && info.direction.y < 0)) {
+            if(!isBottomCollise && (!isCollides && info.direction.y < 0)) {
                 isBottomCollise = true;
             }
         }
 
         isFall = !isBottomCollise;
         
-        headBlock->setPosition(pos);
-
-        
-
-
-        switch (viewPos)
-        {
-        case 1:
-            camPos = pos + glm::vec3(-.5f, 2.f,-.5f);
-            camera->setPosition(camPos);
-            break;        
-        case 2:
-            camPos = (pos + glm::vec3(-.5f, 2.f,-.5f)) - direction * 10.f;
-            camera->setPosition(camPos);
-            break;
-        case 3:
-            camera->setPosition(pos);
-            break;
-        }
+        camera->setPosition(pos);
 
         // light->setPosition(camera->getPosition() + glm::vec3(10, 10, 0));
     });
@@ -308,7 +274,7 @@ int main() {
     
     //     auto pos = camera->getPosition();
 
-    //     auto entities = scene.getEntitiesWithinDistance(10);
+    //     auto entities = scene->getEntitiesWithinDistance(10);
 
 
     //     CollisionInfo info{};
@@ -320,7 +286,7 @@ int main() {
     //                 if(CollisionSphere(pos + (direction * i), .1f)
     //                     .checkCollision(coll, info) && (*it) != headBlock) {
     //                     select = (*it);
-    //                     scene.selectEntity(select);
+    //                     scene->selectEntity(select);
     //                     break;
     //                 };
     //                 delete coll;
@@ -365,7 +331,7 @@ int main() {
     //             }
     //             if(isEmpty) {
     //                 Block* block = new Block(pos);
-    //                 scene.addEntity(block);
+    //                 scene->addEntity(block);
     //             }
     //         }
     //         cd = .2;
@@ -379,7 +345,7 @@ int main() {
     //         bool isBrokable = selectEntity->getType() == EntityType::BLOCK || selectEntity->getType() == EntityType::SLAB;
 
     //         if(isBrokable) {
-    //             scene.removeEntity(selectEntity);
+    //             scene->removeEntity(selectEntity);
     //             blockProcess = 0.f;
     //             selectEntity = NULL;
     //         }
@@ -402,12 +368,13 @@ int main() {
     // Основной цикл
     while (isProgramRuning(window)) {
         // Очистка экрана
+
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glEnable(GL_CULL_FACE);
 
-
-        scene.update();
+        
+        scene->updateWorld();
 
         // Обмен буферов и обработка событий
         glfwSwapBuffers(window);
@@ -419,6 +386,7 @@ int main() {
         printf("[fps]: %f f/s \n", frame/secondF);
         
     }
+    
     
     // Очистка
 

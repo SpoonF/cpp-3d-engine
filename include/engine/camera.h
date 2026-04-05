@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/vec3.hpp> // glm::vec3
+#include <glm/vec2.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
 #include <glm/mat4x4.hpp> // glm::mat4
 #include <glm/ext/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale
@@ -16,6 +17,7 @@
 #include <GLFW/glfw3.h>
 
 #include "entity.h"
+#include "world.h"
 
 class Camera  {
     glm::vec3 position;
@@ -39,6 +41,7 @@ class Camera  {
     glm::vec3 getPosition();
 
     bool isWithinDistance(const Entity& other, float distance) const;
+    bool isWithinDistance(const Chunk& other, float distance) const;
 private:
     std::vector<CallbackType> callbacks_;
 };
