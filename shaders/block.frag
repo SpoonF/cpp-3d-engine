@@ -10,7 +10,7 @@ uniform sampler2D textureSampler;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
-float ambinatStrength = 0.01;
+float ambinatStrength = 0.1;
 vec3 lightColor = vec3(2.55, 2.55, 2.55);
 float specularStrength = 0.01;
 
@@ -20,6 +20,9 @@ void main()
     vec3 textur = texture(textureSampler, UV).rgb;
 
     vec3 ambiant = ambinatStrength * lightColor;
+
+    // vec3 result = ambiant * textur;
+    // color = vec3(result);
     
 
     vec3 norm = normalize(Normal);
@@ -38,6 +41,5 @@ void main()
 
     color = vec3(result);
 
-    // vec3 result = ambiant * textur;
-    // color = vec4(result);
+
 }

@@ -74,9 +74,11 @@ bool Camera::isWithinDistance(const Entity &other, float distance) const
 
 bool Camera::isWithinDistance(const Chunk &other, float distance) const
 {
-    glm::vec2 dist = glm::vec2(this->position) - glm::vec2(other.location.x * (CHUNK_WIDTH * 2), other.location.y * (CHUNK_WIDTH * 2));
+    glm::vec2 dist = glm::vec2(this->position.x, this->position.z) - glm::vec2(other.location.x * 2 * CHUNK_WIDTH, other.location.y * 2 * CHUNK_WIDTH);
 
-    bool viewInDinstance = abs(dist.x) > distance || abs(dist.y) > distance;
+    // printf("[dist]: %f, %f", dist.x, dist.y);
+
+    bool viewInDinstance = abs(dist.x) > distance * 2 * CHUNK_WIDTH || abs(dist.y) > distance * 2 * CHUNK_WIDTH;
 
     if(viewInDinstance) {
         return false;

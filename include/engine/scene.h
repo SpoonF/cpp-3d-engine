@@ -4,7 +4,7 @@
 // #include "camera.h"
 // #include "world.h"
 class Camera;
-class World;
+// class World;
 class Entity;
 
 class Scene {

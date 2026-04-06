@@ -133,13 +133,11 @@ void Scene::updateWorld()
             Object3D object = entity->getObject();
             glm::vec3 position = entity->getPosition();
 
-            if(entity->isType(EntityType::LIGHT)) {
-                lightPos = glm::vec3(
-                    position.x * (chunk->location.x + 1),
-                    position.y,
-                    position.z * (chunk->location.y + 1)
-                ) ;
-            }
+            position = glm::vec3(
+                position.x + (chunk->location.x * 2 * CHUNK_WIDTH),
+                position.y,
+                position.z + (chunk->location.y * 2 * CHUNK_WIDTH)
+            );
 
             if(map.count(object) == 0) {
                 ShaderOptions options{ {position} };

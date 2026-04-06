@@ -8,15 +8,18 @@ const unsigned int CHUNK_HEIGHT = 6;
 
 class Chunk {
 public:
-    std::vector<Entity*> entities{};
-    glm::vec2 location{};
+    std::vector<Entity*> entities;
+    glm::vec2 location;
 };
 
 class World {
-    std::vector<Chunk*> chunks{};
+    std::vector<Chunk*> chunks;
+
+    World(std::vector<Chunk*> &chunks) {
+        this->chunks = chunks;
+    };
 public:
-    World() = default;
-    void generate(unsigned int size);
+    static World *generate(const unsigned int size);
 
 
     glm::vec3 getWorldCenter();
