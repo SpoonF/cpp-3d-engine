@@ -10,13 +10,14 @@ uniform sampler2D textureSampler;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
-float ambinatStrength = 0.1;
+float ambinatStrength = 0.3;
 vec3 lightColor = vec3(2.55, 2.55, 2.55);
-float specularStrength = 0.01;
+float specularStrength = 0.4;
 
 
 void main()
 {
+    
     vec3 textur = texture(textureSampler, UV).rgb;
 
     vec3 ambiant = ambinatStrength * lightColor;
@@ -27,7 +28,8 @@ void main()
 
     vec3 norm = normalize(Normal);
 
-    vec3 lightDir = normalize(lightPos - FragPos);
+    // vec3 lightDir = normalize(lightPos - FragPos);
+    vec3 lightDir = normalize(vec3(54,34,65) - FragPos);
 
     float diff = min(max(dot(norm, lightDir), 0.0), 0.2);
     vec3 diffuse = diff * lightColor;

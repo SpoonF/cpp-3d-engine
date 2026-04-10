@@ -24,6 +24,7 @@
 // g++ src/main.cpp -fsanitize=address -g -o game -I ./include -lGL -lglfw -lGLEW && ./game
 
 // clang++ src/main.cpp -o build/game -fsanitize=address -g -Iinclude -lglew32 -lglfw3 -lgdi32 -lopengl32 -luser32 ; ./build/game
+// g++ src/main.cpp -o game -I ./include  -I./libs/FastNoise2/include -L./libs/FastNoise2/lib -lFastNoise -lGL -lglfw -lGLEW && ./game
 
 bool isProgramRuning(GLFWwindow* window) {
     return !glfwWindowShouldClose(window) &&
@@ -120,13 +121,16 @@ int main() {
     
     printf("Loading terrain...\n");
 
-    World *world = World::generate(64);
+    World *world = World::generate(1);
     
     printf("Terrain is load...\n");
     
     
 
     scene->initWorld(world);
+
+
+    // camera->setPosition();
 
     // LightBlock* light = new LightBlock(glm::vec3(46, 32, 21));
     // light->setCollisable(false);
@@ -284,17 +288,17 @@ int main() {
         // printf("[debag]: camera dir data x: %f, y: %f, z: %f \n", dir.x, dir.y, dir.z);
 
         if (keys[GLFW_KEY_W]) {
-            pos += dir * deltaTime * 4.0f;
+            pos += dir * deltaTime * 32.0f;
         }
         if (keys[GLFW_KEY_S]) {
-            pos -= dir * deltaTime * 4.0f;
+            pos -= dir * deltaTime * 16.0f;
         }
 
         if (keys[GLFW_KEY_D]) {
-            pos += right * deltaTime * 4.0f;
+            pos += right * deltaTime * 8.0f;
         }
         if (keys[GLFW_KEY_A]) {
-            pos -= right * deltaTime * 4.0f;
+            pos -= right * deltaTime * 8.0f;
         }
         if (keys[GLFW_KEY_SPACE]) {
             pos += upDir * deltaTime * 4.0f;
@@ -415,9 +419,9 @@ int main() {
     printf("[Debag]: Start updates");
 
     while (isProgramRuning(window)) {
-        // Очистка экрана
+        // Очистка экрана 135, 206, 235
 
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.11f, 0.67f, 0.84f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glEnable(GL_CULL_FACE);
 
@@ -431,7 +435,7 @@ int main() {
         frame += 1;
         secondF += glfwGetTime() - lastTimeF;
         lastTimeF = glfwGetTime();
-        printf("[fps]: %f f/s \n", frame/secondF);
+        // printf("[fps]: %f f/s \n", frame/secondF);
         
     }
     

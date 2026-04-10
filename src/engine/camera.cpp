@@ -1,4 +1,5 @@
 #include "engine/camera.h"
+#include <cstdio>
 
 Camera::Camera(GLFWwindow* window) {
     position = {0,0,0};
@@ -45,7 +46,7 @@ glm::mat4 Camera::getView(float deltaTime) {
 }
 
 glm::mat4 Camera::getProjection() {
-    return glm::perspective(glm::radians(fov), 4.f/3.f, 0.1f, 100.0f);
+    return glm::perspective(glm::radians(fov), 4.f/3.f, 0.1f, 300.0f);
 }
 
 void Camera::setViewCallback(CallbackType action) {
@@ -74,11 +75,9 @@ bool Camera::isWithinDistance(const Entity &other, float distance) const
 
 bool Camera::isWithinDistance(const Chunk &other, float distance) const
 {
-    glm::vec2 dist = glm::vec2(this->position.x, this->position.z) - glm::vec2(other.location.x * 2 * CHUNK_WIDTH, other.location.y * 2 * CHUNK_WIDTH);
+    glm::vec3 dist = this->position - other.location * 2.0f * (float)CHUNK_WIDTH;
 
-    // printf("[dist]: %f, %f", dist.x, dist.y);
-
-    bool viewInDinstance = abs(dist.x) > distance * 2 * CHUNK_WIDTH || abs(dist.y) > distance * 2 * CHUNK_WIDTH;
+    bool viewInDinstance = abs(dist.x) > distance * 2 * CHUNK_WIDTH || abs(dist.z) > distance * 2 * CHUNK_WIDTH;
 
     if(viewInDinstance) {
         return false;

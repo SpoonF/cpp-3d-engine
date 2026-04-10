@@ -136,7 +136,7 @@ void Scene::updateWorld()
             position = glm::vec3(
                 position.x + (chunk->location.x * 2 * CHUNK_WIDTH),
                 position.y,
-                position.z + (chunk->location.y * 2 * CHUNK_WIDTH)
+                position.z + (chunk->location.z * 2 * CHUNK_WIDTH)
             );
 
             if(map.count(object) == 0) {
@@ -147,8 +147,6 @@ void Scene::updateWorld()
             }
         }
     }
-
-    // std::cout << map.size() << std::endl;
 
     for (const auto &[object, options] : map)
     {
