@@ -84,3 +84,7 @@ bool Camera::isWithinDistance(const Chunk &other, float distance) const
     }
     return true;
 }
+// bool Camera::isVisible(const Chunk &other) const
+// {
+//     return false;
+// }

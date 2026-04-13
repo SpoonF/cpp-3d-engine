@@ -35,4 +35,5 @@ public:
 
     void initWorld(World *world);
     void updateWorld();
+    bool isVisible(Entity* target, std::vector<Entity*>& entities);
 };

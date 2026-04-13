@@ -130,14 +130,9 @@ void Scene::updateWorld()
 
         for (auto const &entity : chunk->entities)
         {
+
             Object3D object = entity->getObject();
             glm::vec3 position = entity->getPosition();
-
-            position = glm::vec3(
-                position.x + (chunk->location.x * 2 * CHUNK_WIDTH),
-                position.y,
-                position.z + (chunk->location.z * 2 * CHUNK_WIDTH)
-            );
 
             if(map.count(object) == 0) {
                 ShaderOptions options{ {position} };
@@ -153,4 +148,40 @@ void Scene::updateWorld()
         object.shader->set("lightPos", lightPos);
         object.render(options);
     }
+}
+
+bool Scene::isVisible(Entity* target, std::vector<Entity*>& entities) {
+
+    glm::vec3 direction = target->getPosition() - camera->getPosition();
+    float t_target = glm::length2(direction);
+    direction = direction / t_target;
+
+    printf("%i \n", entities.size());
+
+    // for (auto &other : entities)
+    // {
+    //     if(other == target) {
+    //         continue;
+    //     }
+
+    //     // auto oc = other->getPosition() - camPos;
+    //     // auto proj = glm::dot(oc, direction);
+
+    //     // auto t_closest = proj;
+
+    //     // if(t_closest < 0) {
+    //     //     continue;
+    //     // }
+
+    //     // float dist_sq = dot(oc, oc) - t_closest * t_closest;
+    //     // if(dist_sq <= 4)  {
+    //     //     auto t_hit = t_closest - std::sqrt(4 - dist_sq);
+
+    //     //     if(t_hit >= t_target - 0.01) {
+    //     //         result.push_back(target);
+    //     //     }
+    //     // }
+    // }
+
+    return true;
 }

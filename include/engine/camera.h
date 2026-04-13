@@ -42,6 +42,7 @@ class Camera  {
 
     bool isWithinDistance(const Entity& other, float distance) const;
     bool isWithinDistance(const Chunk& other, float distance) const;
+    // bool isVisible(const Chunk& other) const;
 private:
     std::vector<CallbackType> callbacks_;
 };

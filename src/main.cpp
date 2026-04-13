@@ -101,6 +101,7 @@ int main() {
 
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
     // glDepthMask(GL_FALSE);
     glDepthFunc(GL_LESS);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  
@@ -121,7 +122,7 @@ int main() {
     
     printf("Loading terrain...\n");
 
-    World *world = World::generate(1);
+    World *world = World::generate(8);
     
     printf("Terrain is load...\n");
     
@@ -416,7 +417,7 @@ int main() {
     int frame = 0;
     // Основной цикл
 
-    printf("[Debag]: Start updates");
+    printf("[Debag]: Start updates\n");
 
     while (isProgramRuning(window)) {
         // Очистка экрана 135, 206, 235

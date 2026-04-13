@@ -2,14 +2,16 @@
 
 // #include "engine/scene.h"
 
-const unsigned int CHUNK_WIDTH = 128; 
-const unsigned int CHUNK_HEIGHT = 12; 
-// const unsigned int CHUNK_COUNT = 16; 
+const unsigned int CHUNK_WIDTH = 16; 
+const unsigned int CHUNK_HEIGHT = 32; 
 
 class Chunk {
 public:
     std::vector<Entity*> entities;
     glm::vec3 location;
+
+
+    static glm::vec3& getCoordiante(glm::vec3& coordiante);
 };
 
 class World {
@@ -23,8 +25,8 @@ public:
 
 
     glm::vec3 getWorldCenter();
+    void setEntity(Entity* entity);
 
     std::vector<Chunk*> getChunks();
-    // Chunk* getChunk(glm::vec3 position);
 
 };
