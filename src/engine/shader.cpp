@@ -77,7 +77,19 @@ void Shader::initShaderProgram(const char* vert, const char* frag) {
 void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& options) {
     
     this->draw();
+    std::vector<glm::vec3> positions;
 
+    for (auto &position : options.positions) {
+        glm::vec3 chunkMax = glm::vec3(
+            position.x + 2,
+            position.y + 2,
+            position.z + 2
+        );
+
+        if(this->frustum.isAABBVisible(position, chunkMax)) {
+            positions.push_back(position);
+        }
+    }
     
 
     unsigned int VAO, VBO;
@@ -94,12 +106,12 @@ void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& option
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glEnableVertexAttribArray(0);
 
-    if(options.positions.size()) {
+    if(positions.size()) {
 
         unsigned int positionsVBO;
         glGenBuffers(1, &positionsVBO);
         glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
-        glBufferData(GL_ARRAY_BUFFER, options.positions.size() * sizeof(glm::vec3), &options.positions[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), &positions[0], GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         glEnableVertexAttribArray(2);
@@ -158,7 +170,7 @@ void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& option
     glBindVertexArray(0);
 
     glBindVertexArray(VAO);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, obj.model->vertices.size(), options.positions.size());
+    glDrawArraysInstanced(GL_TRIANGLES, 0, obj.model->vertices.size(), positions.size());
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
@@ -198,14 +210,10 @@ void Shader::draw() {
 
     glUseProgram(this->selectShader);
 
-    // while (!this->drawQueue.empty())
-    // {
-    //     this->drawQueue.front()();
-    //     this->drawQueue.pop();
-    // }
-    // drawCrossPoint(shaderId);
+    this->frustum.update(Projection * View);
     
 }
+
 void Shader::updateDeltaTime() {
     double currentTime = glfwGetTime();
     this->deltaTime = float(currentTime - this->lastTime);

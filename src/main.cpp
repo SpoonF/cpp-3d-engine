@@ -98,9 +98,9 @@ int main() {
     }
 
     // unsigned int shaderProgram = initShaderProgram();
-
-
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
+
     glEnable(GL_CULL_FACE);
     // glDepthMask(GL_FALSE);
     glDepthFunc(GL_LESS);

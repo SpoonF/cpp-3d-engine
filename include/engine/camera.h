@@ -31,6 +31,7 @@ class Camera  {
     glm::vec3 right;
     glm::vec3 up;
     GLFWwindow* window;
+    float lastTime;
     public: 
     using CallbackType = std::function<void( glm::vec3, glm::vec3, glm::vec3, float)>;
     Camera(GLFWwindow* window);
@@ -42,7 +43,7 @@ class Camera  {
 
     bool isWithinDistance(const Entity& other, float distance) const;
     bool isWithinDistance(const Chunk& other, float distance) const;
-    // bool isVisible(const Chunk& other) const;
+    bool isVisible(const Chunk& other);
 private:
     std::vector<CallbackType> callbacks_;
 };

@@ -2,18 +2,19 @@
 #include "engine/object.h"
 
 bool EntityOptions::isLighting() {
-    return this->isLight;
+    return this->_isLight;
 }
 
 bool EntityOptions::isCollisable()
 {
-    return this->isCollise;
+    return this->_isCollise;
 }
 
 void EntityOptions::setCollisable(bool value)
 {
-    this->isCollise = value;
+    this->_isCollise = value;
 }
+
 Entity::Entity(const Object3D &object, const glm::vec3 &position, EntityType type)
 {
     this->position = position;

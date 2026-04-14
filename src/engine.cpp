@@ -38,6 +38,7 @@
 #include "engine/entity/player.cpp"
 #include "engine/shader.cpp"
 #include "engine/world.cpp"
+#include "engine/frustum.cpp"
 #include "engine/scene.cpp"
 
 

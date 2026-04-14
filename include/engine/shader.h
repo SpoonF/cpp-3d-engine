@@ -11,15 +11,18 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <map>
+#include <set>
 #include <queue>
 #include <fstream>
 #include <functional>
 
 #include "object.h"
 #include "camera.h"
+#include "frustum.h"
 
 struct ShaderOptions {
     std::vector<glm::vec3> positions;
+    
 };
 
 class Shader {
@@ -34,12 +37,14 @@ class Shader {
     char* readShader(const char* filename);
 
 public:
+    Frustum frustum;
     void initShaderProgram(const char* vert, const char* frag);
     void drawObjectInstaced(const Object3D& obj, const ShaderOptions& options);
     static std::unique_ptr<Shader> create(const char* vert, const char* frag);
 
     Shader(const char* vert, const char* frag);
     void draw();
+    
     void updateDeltaTime();
     glm::mat4 getModel();
     void set(const char* name, glm::vec3& data);

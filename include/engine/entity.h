@@ -2,7 +2,10 @@
 
 #include <glm/vector_relational.hpp>
 #include <glm/vec3.hpp>
+#include <glm/gtx/hash.hpp>
+#include <unordered_set>
 #include <memory>
+#include <array>
 
 class Object3D;
 
@@ -15,13 +18,13 @@ enum EntityType {
 
 class EntityOptions {
     protected:
-        bool isLight = false;
-        bool isCollise = true;
+        bool _isLight = false;
+        bool _isCollise = true;
+        glm::vec3 position;
     public:
         bool isLighting();
         bool isCollisable();
         void setCollisable(bool value);
-    
 };
 
 class Entity: public EntityOptions {

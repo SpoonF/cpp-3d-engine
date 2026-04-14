@@ -1,5 +1,9 @@
 #pragma once
 
+
+#include <glm/gtx/hash.hpp>
+#include <unordered_set>
+
 // #include "engine/scene.h"
 
 const unsigned int CHUNK_WIDTH = 16; 
@@ -9,7 +13,6 @@ class Chunk {
 public:
     std::vector<Entity*> entities;
     glm::vec3 location;
-
 
     static glm::vec3& getCoordiante(glm::vec3& coordiante);
 };

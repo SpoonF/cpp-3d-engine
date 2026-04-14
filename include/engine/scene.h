@@ -8,9 +8,11 @@ class Camera;
 class Entity;
 
 class Scene {
+private:
     GLFWwindow *window;
     Camera *camera;
     World *world;
+    float lastTime;
 public:
     std::vector<std::vector<int>> map;
     std::vector<Entity*> entities;

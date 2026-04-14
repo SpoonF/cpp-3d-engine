@@ -6,6 +6,7 @@
 Scene::Scene(GLFWwindow *window, Camera *camera) {
     this->window = window;
     this->camera = camera;
+    this->lastTime = glfwGetTime();
 }
 void Scene::addEntity(Entity* entity) {
     entities.push_back(entity);
@@ -84,8 +85,6 @@ void Scene::update() {
             continue;
         }
 
-        
-
         Object3D object = entity->getObject();
         glm::vec3 position = entity->getPosition();
 
@@ -128,9 +127,8 @@ void Scene::updateWorld()
             continue;
         }
 
-        for (auto const &entity : chunk->entities)
+        for (Entity* const &entity : chunk->entities)
         {
-
             Object3D object = entity->getObject();
             glm::vec3 position = entity->getPosition();
 
@@ -151,37 +149,6 @@ void Scene::updateWorld()
 }
 
 bool Scene::isVisible(Entity* target, std::vector<Entity*>& entities) {
-
-    glm::vec3 direction = target->getPosition() - camera->getPosition();
-    float t_target = glm::length2(direction);
-    direction = direction / t_target;
-
-    printf("%i \n", entities.size());
-
-    // for (auto &other : entities)
-    // {
-    //     if(other == target) {
-    //         continue;
-    //     }
-
-    //     // auto oc = other->getPosition() - camPos;
-    //     // auto proj = glm::dot(oc, direction);
-
-    //     // auto t_closest = proj;
-
-    //     // if(t_closest < 0) {
-    //     //     continue;
-    //     // }
-
-    //     // float dist_sq = dot(oc, oc) - t_closest * t_closest;
-    //     // if(dist_sq <= 4)  {
-    //     //     auto t_hit = t_closest - std::sqrt(4 - dist_sq);
-
-    //     //     if(t_hit >= t_target - 0.01) {
-    //     //         result.push_back(target);
-    //     //     }
-    //     // }
-    // }
 
     return true;
 }
