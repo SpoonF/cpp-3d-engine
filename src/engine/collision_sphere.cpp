@@ -8,7 +8,7 @@
 CollisionSphere::CollisionSphere(glm::vec3 position, float radius): Collision(position) {
     this->radius = radius;
 }
-CollisionSphere::CollisionSphere(const Object3D& object, glm::vec3 position, float radius): Collision(object, position) {
+CollisionSphere::CollisionSphere(std::shared_ptr<Object3D> object, glm::vec3 position, float radius): Collision(object, position) {
     this->radius = radius;
 }
 bool CollisionSphere::checkCollision(CollisionSphere* other, CollisionInfo& info) {

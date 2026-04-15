@@ -16,6 +16,7 @@ public:
     imageBMP* texture;
     Shader* shader;
     // static std::vector<Object3D&> instances;
+    glm::vec3 position;
     Object3D() = default;
     Object3D(Model* _model, imageBMP* _texture);
     Object3D(Model* _model);

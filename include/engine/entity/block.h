@@ -3,7 +3,7 @@
 #include "../entity.h"
 #include "../collision_box.h"
 
-extern const Object3D& getDefaultBlockObject(const char* type);
+extern std::shared_ptr<Object3D> getDefaultBlockObject(EntityType type);
 
 class Block: virtual public Entity, virtual public CollisionBox {
 public:

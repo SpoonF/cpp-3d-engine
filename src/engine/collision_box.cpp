@@ -9,7 +9,7 @@
 CollisionBox::CollisionBox(glm::vec3 position, glm::vec3 size): Collision(position) {
     this->size = size;
 }
-CollisionBox::CollisionBox(const Object3D& object, glm::vec3 position, glm::vec3 size): Collision(object, position) {
+CollisionBox::CollisionBox(std::shared_ptr<Object3D> object, glm::vec3 position, glm::vec3 size): Collision(object, position) {
     this->size = size;
 }
 void CollisionBox::setSize(glm::vec3 size) {

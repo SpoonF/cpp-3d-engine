@@ -4,9 +4,10 @@
 #include "engine/camera.h"
 #include "utils/model.h"
 #include "utils/imageBMP.h"
+#include <iostream>
 
-Camera* Shader::camera = nullptr;
 GLFWwindow* Shader::window = nullptr;
+std::shared_ptr<Camera> Shader::camera = nullptr;
 
 char* Shader::readShader(const char* filename) {
     std::ifstream file(filename);
@@ -77,20 +78,6 @@ void Shader::initShaderProgram(const char* vert, const char* frag) {
 void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& options) {
     
     this->draw();
-    std::vector<glm::vec3> positions;
-
-    for (auto &position : options.positions) {
-        glm::vec3 chunkMax = glm::vec3(
-            position.x + 2,
-            position.y + 2,
-            position.z + 2
-        );
-
-        if(this->frustum.isAABBVisible(position, chunkMax)) {
-            positions.push_back(position);
-        }
-    }
-    
 
     unsigned int VAO, VBO;
 
@@ -106,19 +93,34 @@ void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& option
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glEnableVertexAttribArray(0);
 
-    if(positions.size()) {
+    if(options.positions.size()) {
 
         unsigned int positionsVBO;
         glGenBuffers(1, &positionsVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
-        glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), &positions[0], GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, positionsVBO);
+        glBufferData(GL_ATOMIC_COUNTER_BUFFER, options.positions.size() * sizeof(glm::vec3), &options.positions[0], GL_DYNAMIC_DRAW);
+        glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, positionsVBO);
 
         glEnableVertexAttribArray(2);
         glBindBuffer(GL_ARRAY_BUFFER, positionsVBO);
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);	
         glVertexAttribDivisor(2, 1);  
+    }
+
+    if(options.sizes.size()) {
+
+        unsigned int sizesVBO;
+        glGenBuffers(1, &sizesVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, sizesVBO);
+        glBufferData(GL_ARRAY_BUFFER, options.sizes.size() * sizeof(glm::vec3), &options.sizes[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glEnableVertexAttribArray(3);
+        glBindBuffer(GL_ARRAY_BUFFER, sizesVBO);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);	
+        glVertexAttribDivisor(3, 1);  
     }
 
     
@@ -160,9 +162,9 @@ void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& option
   
 
 
-    glEnableVertexAttribArray(3);
+    glEnableVertexAttribArray(4);
     glBindBuffer(GL_ARRAY_BUFFER, normal);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0);
 
 
     
@@ -170,19 +172,10 @@ void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& option
     glBindVertexArray(0);
 
     glBindVertexArray(VAO);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, obj.model->vertices.size(), positions.size());
+    glDrawArraysInstanced(GL_TRIANGLES, 0, obj.model->vertices.size(), options.positions.size());
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-}
-
-std::unique_ptr<Shader> Shader::create(const char *vert, const char *frag)
-{
-    auto instance = std::unique_ptr<Shader>();
-    instance->initShaderProgram(vert, frag);
-
-    instance->lastTime = glfwGetTime();
-    return instance;
 }
 
 Shader::Shader(const char *vert, const char *frag)
@@ -241,12 +234,15 @@ void Shader::set(char* name, glm::mat3& data) {
 
     glUniformMatrix4fv(dataId, 1, GL_FALSE, &data[0][0]);
 }
-void Shader::init(GLFWwindow* _window, Camera* _camera)
+void Shader::init(GLFWwindow* _window, std::shared_ptr<Camera> _camera)
 {
-    
     camera = _camera;
     std::cout << "Shader initialized with camera: " << camera << std::endl;
     
     window = _window;
     std::cout << "Shader initialized with window: " << window << std::endl;
+}
+Shader::~Shader()
+{
+    glDeleteProgram(this->selectShader);
 }

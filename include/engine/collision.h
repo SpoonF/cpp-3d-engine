@@ -17,9 +17,9 @@ public:
 class Collision {
 protected:
     glm::vec3 position;
-    Object3D object;
+    std::shared_ptr<Object3D> object;
 public:
-    Collision(const Object3D& object, glm::vec3 position);
+    Collision(std::shared_ptr<Object3D> object, glm::vec3 position);
     Collision(glm::vec3 position);
 
     virtual int getVertexCount();

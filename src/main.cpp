@@ -25,6 +25,7 @@
 
 // clang++ src/main.cpp -o build/game -fsanitize=address -g -Iinclude -lglew32 -lglfw3 -lgdi32 -lopengl32 -luser32 ; ./build/game
 // g++ src/main.cpp -o game -I ./include  -I./libs/FastNoise2/include -L./libs/FastNoise2/lib -lFastNoise -lGL -lglfw -lGLEW && ./game
+// g++ src/main.cpp -o game -fsanitize=address -g -I ./include -I./libs/FastNoise2/include -L./libs/FastNoise2/lib -lFastNoise -lGL -lglfw -lGLEW && ./game
 
 bool isProgramRuning(GLFWwindow* window) {
     return !glfwWindowShouldClose(window) &&
@@ -107,28 +108,27 @@ int main() {
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  
     glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
 
-    glEnable(GL_STENCIL_TEST); 
+    glEnable(GL_STENCIL_TEST);
 
-    Camera* camera = new Camera(window);
+    std::shared_ptr<Camera> camera = std::make_shared<Camera>(window);
+
+    // Camera* camera = new Camera(window);
 
     Shader::init(window, camera);
 
     Scene *scene = new Scene(window, camera);
 
     
-
-    
-
-    
     printf("Loading terrain...\n");
 
-    World *world = World::generate(8);
+    std::shared_ptr<World> world = World::generate(8);
     
     printf("Terrain is load...\n");
     
     
 
-    scene->initWorld(world);
+    scene->setWorld(world);
+
 
 
     // camera->setPosition();
@@ -442,8 +442,6 @@ int main() {
     
     
     // Очистка
-
-    // glDeleteProgram(shaderProgram);
     
     glfwTerminate();
     return 0;

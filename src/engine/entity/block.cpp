@@ -1,11 +1,10 @@
 #include "engine/entity/block.h"
 #include "memory"
 
-
-const Object3D& getDefaultBlockObject(EntityType type) {
-    static const Object3D block("./assets/models/cube.obj", "./assets/textures/ground.bmp");
-    static const Object3D light("./assets/models/cube.obj");
-    static const Object3D slab("./assets/models/slab.obj", "./assets/textures/ground.bmp");
+std::shared_ptr<Object3D> getDefaultBlockObject(EntityType type) {
+    static std::shared_ptr<Object3D> block = std::make_shared<Object3D>("./assets/models/cube.obj", "./assets/textures/ground.bmp");
+    static std::shared_ptr<Object3D> light = std::make_shared<Object3D>("./assets/models/cube.obj");
+    static std::shared_ptr<Object3D> slab = std::make_shared<Object3D>("./assets/models/slab.obj", "./assets/textures/ground.bmp");
 
     switch (type) {
         case EntityType::BLOCK:
@@ -15,7 +14,7 @@ const Object3D& getDefaultBlockObject(EntityType type) {
         case EntityType::LIGHT:
             return light;
         default:
-            return block;
+            return nullptr;
     }
 
     

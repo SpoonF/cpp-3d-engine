@@ -10,15 +10,15 @@ class Entity;
 class Scene {
 private:
     GLFWwindow *window;
-    Camera *camera;
-    World *world;
+    std::shared_ptr<Camera> camera;
+    std::shared_ptr<World> world;
     float lastTime;
 public:
     std::vector<std::vector<int>> map;
     std::vector<Entity*> entities;
     std::vector<Entity*> selectedEntities;
     std::vector<int> transperents;
-    Scene(GLFWwindow *window, Camera *camera);
+    Scene(GLFWwindow *window, std::shared_ptr<Camera> camera);
     void addEntity(Entity* entity);
     void selectEntity(Entity* entity);
 
@@ -35,7 +35,7 @@ public:
 
     void update();
 
-    void initWorld(World *world);
+    void setWorld(std::shared_ptr<World> world);
     void updateWorld();
     bool isVisible(Entity* target, std::vector<Entity*>& entities);
 };

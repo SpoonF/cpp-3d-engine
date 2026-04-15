@@ -34,13 +34,13 @@ public:
     glm::vec3 rotate{0,0,0};
     EntityType type;
     glm::vec3 position;
-    Object3D object;
+    std::shared_ptr<Object3D> object;
     int id = 0;
     bool isSelected = false;
-    Entity(const Object3D& object, const glm::vec3& position, EntityType type);
+    Entity(std::shared_ptr<Object3D> object, const glm::vec3& position, EntityType type);
     Entity(const glm::vec3& position, EntityType type);
     bool contains(const glm::vec3& point) const;
-    Object3D getObject();
+    std::shared_ptr<Object3D> getObject();
 
     EntityType getType();
     bool isType(EntityType type);

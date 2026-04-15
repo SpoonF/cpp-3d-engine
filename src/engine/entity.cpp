@@ -15,7 +15,7 @@ void EntityOptions::setCollisable(bool value)
     this->_isCollise = value;
 }
 
-Entity::Entity(const Object3D &object, const glm::vec3 &position, EntityType type)
+Entity::Entity(std::shared_ptr<Object3D> object, const glm::vec3 &position, EntityType type)
 {
     this->position = position;
     this->object = object;
@@ -34,7 +34,7 @@ bool Entity::contains(const glm::vec3& point) const {
     return glm::all(glm::greaterThanEqual(point, position)) && 
     glm::all(glm::lessThanEqual(point, position + 1.f));
 }
-Object3D Entity::getObject() {
+std::shared_ptr<Object3D> Entity::getObject() {
     return this->object;
 }
 EntityType Entity::getType() {

@@ -15,6 +15,7 @@
 #include <queue>
 #include <fstream>
 #include <functional>
+#include <memory>
 
 #include "object.h"
 #include "camera.h"
@@ -22,12 +23,13 @@
 
 struct ShaderOptions {
     std::vector<glm::vec3> positions;
+    std::vector<glm::vec3> sizes;
     
 };
 
 class Shader {
     static GLFWwindow* window;
-    static Camera* camera;
+    static std::shared_ptr<Camera> camera;
 
     int selectShader;
     double lastTime = 0;
@@ -54,6 +56,8 @@ public:
     
     // void addDraw(const Object3D& object);
     // void addDraw(const Object3D& object, const std::vector<glm::vec3>& instances);
-    static void init(GLFWwindow *window, Camera* camera);
+    static void init(GLFWwindow *window, std::shared_ptr<Camera> camera);
+
+    ~Shader();
 };
 

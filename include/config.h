@@ -1,3 +1,3 @@
 #pragma once
 
-const unsigned int RENDER_DISTANCE = 8;
+const unsigned int RENDER_DISTANCE = 4;

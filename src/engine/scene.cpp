@@ -3,7 +3,27 @@
 #include "engine/shader.h"
 #include "config.h"
 
-Scene::Scene(GLFWwindow *window, Camera *camera) {
+#include <chrono>
+#include <iostream>
+
+class Profiler {
+private:
+    std::chrono::steady_clock::time_point start;
+    std::string name;
+    
+public:
+    Profiler(const std::string& n) : name(n) {
+        start = std::chrono::steady_clock::now();
+    }
+    
+    ~Profiler() {
+        auto end = std::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+        printf("%s: %.2f FPS\n", name.c_str(), 1000.0 / (duration * 0.001));
+    }
+};
+
+Scene::Scene(GLFWwindow *window, std::shared_ptr<Camera> camera) {
     this->window = window;
     this->camera = camera;
     this->lastTime = glfwGetTime();
@@ -85,19 +105,19 @@ void Scene::update() {
             continue;
         }
 
-        Object3D object = entity->getObject();
-        glm::vec3 position = entity->getPosition();
+        // Object3D object = entity->getObject();
+        // glm::vec3 position = entity->getPosition();
 
-        if(entity->isType(EntityType::LIGHT)) {
-            lightPos = position;
-        }
+        // if(entity->isType(EntityType::LIGHT)) {
+        //     lightPos = position;
+        // }
 
-        if(map.count(object) == 0) {
-            ShaderOptions options{ {position} };
-            map[object] = options;
-        }else {
-            map[object].positions.push_back(position);
-        }
+        // if(map.count(object) == 0) {
+        //     ShaderOptions options{ {position} };
+        //     map[object] = options;
+        // }else {
+        //     map[object].positions.push_back(position);
+        // }
         
     }
 
@@ -109,43 +129,89 @@ void Scene::update() {
         object.render(options);
     }
 }
-void Scene::initWorld(World *world)
+void Scene::setWorld(std::shared_ptr<World> world)
 {
     this->world = world;
 }
 
 void Scene::updateWorld()
 {
-    std::map<Object3D, ShaderOptions> map;
+    Profiler p("Full render");
+    std::map<std::shared_ptr<Object3D>, ShaderOptions> map;
     glm::vec3 lightPos;
 
-    std::vector<Chunk *> chunks = this->world->getChunks(); 
+    std::vector<std::shared_ptr<Chunk>> chunks = this->world->getChunks(); 
 
-    for (auto const &chunk : chunks)
+    for (auto &chunk : chunks)
     {
         if(!camera->isWithinDistance(*chunk, RENDER_DISTANCE)) {
             continue;
         }
 
-        for (Entity* const &entity : chunk->entities)
+        for (auto const &[object, positions] : chunk->objects)
         {
-            Object3D object = entity->getObject();
-            glm::vec3 position = entity->getPosition();
-
-            if(map.count(object) == 0) {
-                ShaderOptions options{ {position} };
-                map[object] = options;
-            }else {
-                map[object].positions.push_back(position);
-            }
+            object->shader->set("lightPos", lightPos);
+            ShaderOptions options;
+            options.positions = positions;
+            object->render(options);
         }
     }
+    
 
-    for (const auto &[object, options] : map)
-    {
-        object.shader->set("lightPos", lightPos);
-        object.render(options);
-    }
+    // for (auto const &chunk : chunks)
+    // {
+    //     if(!camera->isWithinDistance(*chunk, RENDER_DISTANCE)) {
+    //         continue;
+    //     }
+
+    //     auto quads = chunk->greedy_mesh_face(1);
+
+        
+    //     // for (auto const &quad : quads)
+    //     // {
+
+    //     //     // if(entity->isType(EntityType::LIGHT)) {
+    //     //     //     lightPos = position;
+    //     //     // }
+
+    //     //     if(map.count(quad.object) == 0) {
+                
+    //     //         ShaderOptions options{ {quad.pos} };
+    //     //         map[quad.object] = options;
+    //     //     }else {
+    //     //         map[quad.object].positions.push_back(quad.pos);
+    //     //     }
+    //     // }
+        
+
+    //     // for (auto const &entity : chunk->getEntities())
+    //     // {
+    //     //     if(entity == nullptr) {
+    //     //         continue;
+    //     //     }
+
+    //     //     std::shared_ptr<Object3D> object = entity->getObject();
+    //     //     glm::vec3 position = entity->getPosition();
+
+    //     //     // if(entity->isType(EntityType::LIGHT)) {
+    //     //     //     lightPos = position;
+    //     //     // }
+
+    //     //     if(map.count(object) == 0) {
+    //     //         ShaderOptions options{ {position} };
+    //     //         map[object] = options;
+    //     //     }else {
+    //     //         map[object].positions.push_back(position);
+    //     //     }
+            
+    //     // }
+    // }
+
+    // for (const auto &[object, options] : map)
+    // {
+    //     object->shader->set("lightPos", lightPos);
+    //     object->render(options);
+    // }
 }
 
 bool Scene::isVisible(Entity* target, std::vector<Entity*>& entities) {
