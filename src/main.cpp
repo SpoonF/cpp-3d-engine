@@ -117,11 +117,10 @@ int main() {
     Shader::init(window, camera);
 
     Scene *scene = new Scene(window, camera);
-
     
     printf("Loading terrain...\n");
 
-    std::shared_ptr<World> world = World::generate(8);
+    std::shared_ptr<World> world = World::generate(4);
     
     printf("Terrain is load...\n");
     

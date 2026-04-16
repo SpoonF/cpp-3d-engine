@@ -75,7 +75,7 @@ void Shader::initShaderProgram(const char* vert, const char* frag) {
     this->selectShader = shaderProgram;
 }
 
-void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& options) {
+void Shader::drawObjectInstaced(const Model& model, const imageBMP& texture, const ShaderOptions& options) {
     
     this->draw();
 
@@ -87,7 +87,7 @@ void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& option
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, obj.model->vertices.size() * sizeof(glm::vec3), &obj.model->vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, model.vertices.size() * sizeof(glm::vec3), &model.vertices[0], GL_STATIC_DRAW);
 
     // Позиции
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -123,20 +123,25 @@ void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& option
         glVertexAttribDivisor(3, 1);  
     }
 
-    
-    
     unsigned int uvBuffer;
     glGenBuffers(1, &uvBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-    glBufferData(GL_ARRAY_BUFFER, obj.model->uvs.size() * sizeof(glm::vec2), &obj.model->uvs[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, model.uvs.size() * sizeof(glm::vec2), &model.uvs[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    if(obj.texture) {
-        unsigned int texture;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, obj.texture->width, obj.texture->height, 0, GL_BGR, GL_UNSIGNED_BYTE, obj.texture->data);
+    // uint hasTexture = glGetUniformLocation(1, "hasTexture");
+
+    if(texture.data) {
+        unsigned int textureLoc;
+        glGenTextures(1, &textureLoc);
+        glBindTexture(GL_TEXTURE_2D, textureLoc);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.width, texture.height, 0, GL_BGR, GL_UNSIGNED_BYTE, texture.data);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -145,34 +150,23 @@ void Shader::drawObjectInstaced(const Object3D& obj, const ShaderOptions& option
     }
 
     
-    
-    unsigned int normal;
-    glGenBuffers(1, &normal);
-    glBindBuffer(GL_ARRAY_BUFFER, normal);
-    glBufferData(GL_ARRAY_BUFFER, obj.model->normals.size() * sizeof(glm::vec3), &obj.model->normals[0], GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    if(model.normals.size()) {
+        unsigned int normal;
+        glGenBuffers(1, &normal);
+        glBindBuffer(GL_ARRAY_BUFFER, normal);
+        glBufferData(GL_ARRAY_BUFFER, model.normals.size() * sizeof(glm::vec3), &model.normals[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    
-    // Цвета
-
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-  
-
-
-    glEnableVertexAttribArray(4);
-    glBindBuffer(GL_ARRAY_BUFFER, normal);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0);
-
-
+        glEnableVertexAttribArray(4);
+        glBindBuffer(GL_ARRAY_BUFFER, normal);
+        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0);
+    }
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     glBindVertexArray(VAO);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, obj.model->vertices.size(), options.positions.size());
+    glDrawArraysInstanced(GL_TRIANGLES, 0, model.vertices.size(), options.positions.size());
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
@@ -187,10 +181,10 @@ Shader::Shader(const char *vert, const char *frag)
 
 void Shader::draw() {
 
-    this->updateDeltaTime();
+    // this->updateDeltaTime();
 
     glm::mat4 Projection = Shader::camera->getProjection();
-    glm::mat4 View = Shader::camera->getView(this->deltaTime);
+    glm::mat4 View = Shader::camera->getView();
     glm::mat4 Model = getModel();
     glm::mat3 ModelNormal = glm::mat3(glm::transpose(glm::inverse(Model)));
     glm::vec3 viewPos = Shader::camera->getPosition();
@@ -202,9 +196,6 @@ void Shader::draw() {
     set("viewPos", viewPos);
 
     glUseProgram(this->selectShader);
-
-    this->frustum.update(Projection * View);
-    
 }
 
 void Shader::updateDeltaTime() {

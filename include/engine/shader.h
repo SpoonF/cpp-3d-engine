@@ -17,7 +17,9 @@
 #include <functional>
 #include <memory>
 
-#include "object.h"
+// #include "object.h"
+#include "../utils/model.h"
+#include "../utils/imageBMP.h"
 #include "camera.h"
 #include "frustum.h"
 
@@ -39,9 +41,11 @@ class Shader {
     char* readShader(const char* filename);
 
 public:
+    Shader() = default;
+
     Frustum frustum;
     void initShaderProgram(const char* vert, const char* frag);
-    void drawObjectInstaced(const Object3D& obj, const ShaderOptions& options);
+    void drawObjectInstaced(const Model& model, const imageBMP& texture, const ShaderOptions& options);
     static std::unique_ptr<Shader> create(const char* vert, const char* frag);
 
     Shader(const char* vert, const char* frag);

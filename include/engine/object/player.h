@@ -5,7 +5,7 @@
 
 class Player: virtual public Entity, virtual public CollisionBox {
 public:
-    Player(std::shared_ptr<Object3D> object, const glm::vec3& position);
+    Player(std::shared_ptr<Object> object, const glm::vec3& position);
     using
         Entity::getPosition,
         Entity::getObject;

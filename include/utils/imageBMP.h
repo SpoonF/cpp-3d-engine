@@ -7,5 +7,6 @@ class imageBMP {
         unsigned int width, height;
         unsigned int size;
         unsigned char* data;
+        imageBMP() = default;
         imageBMP(const char* filename);
 };

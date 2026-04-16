@@ -13,6 +13,7 @@ private:
     std::shared_ptr<Camera> camera;
     std::shared_ptr<World> world;
     float lastTime;
+    Frustum frustum;
 public:
     std::vector<std::vector<int>> map;
     std::vector<Entity*> entities;

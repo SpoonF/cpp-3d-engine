@@ -5,41 +5,64 @@
 
 
 
-Object3D::Object3D(Model* model, imageBMP* texture) {
+Object::Object(const Model& model,const imageBMP& texture, const glm::vec3& position, ObjectType type) {
     this->model = model;
     this->texture = texture;
+    this->position = position;
+    this->type = type;
     count++;
     id = count;
 }
-Object3D::Object3D(Model* model) {
+Object::Object(const Model& model, const glm::vec3& position, ObjectType type) {
     this->model = model;
+    this->position = position;
+    this->type = type;
     count++;
     id = count;
 }
-Object3D::Object3D(const char* modelpath, const char* texturepath) {
-    this->model = new Model(modelpath);
-    this->texture = new imageBMP(texturepath);
-    this->shader = new Shader("./shaders/block.vert", "./shaders/block.frag");
+Object::Object(const char* modelpath, const char* texturepath, const glm::vec3& position, ObjectType type) {
+    this->model = Model(modelpath);
+    this->texture = imageBMP(texturepath);
+    this->position = position;
+    this->type = type;
     count++;
     id = count;
 }
-Object3D::Object3D(const char* modelpath) {
-    this->model = new Model(modelpath);
-    this->shader = new Shader("./shaders/block.vert", "./shaders/no-texture.frag");
+Object::Object(const char* modelpath, const glm::vec3& position, ObjectType type) {
+    this->model = Model(modelpath);
+    this->shader = std::make_shared<Shader>("./shaders/block.vert", "./shaders/no-texture.frag");
 
     count++;
     id = count;
 }
-bool Object3D::operator<(const Object3D& other) const {
+bool Object::operator<(const Object& other) const {
     return id < other.id;
 }
-bool Object3D::operator==(const Object3D& other) const {
+bool Object::operator==(const Object& other) const {
     return id == other.id;
 }
+bool Object::operator!=(const Object& other) const {
+    return id != other.id;
+}
 
-void Object3D::render(const ShaderOptions& options) const {
+void Object::render(const ShaderOptions& options) const {
 
-    const Object3D obj = (*this);
-
-    this->shader->drawObjectInstaced(obj, options);
+    this->shader->drawObjectInstaced(this->model, this->texture, options);
 };
+
+glm::vec3 Object::getPosition() const {
+    return this->position;
+};
+void Object::setPosition(const glm::vec3& position) {
+    this->position = position;
+};
+
+void Object::move(const glm::vec3 &position)
+{
+    this->position += position;
+}
+
+void Object::setShader(std::shared_ptr<Shader> shader)
+{
+    this->shader = shader;
+}
