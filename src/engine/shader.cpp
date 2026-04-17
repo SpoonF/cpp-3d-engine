@@ -10,7 +10,6 @@
 
 GLFWwindow* Shader::window = nullptr;
 std::shared_ptr<Camera> Shader::camera = nullptr;
-std::map<int, Shader*> Shader::instances;
 
 char* Shader::readShader(const char* filename) {
     std::ifstream file(filename);
@@ -212,27 +211,7 @@ void Shader::drawObjectInstaced(Model* model, imageBMP* texture, const ShaderOpt
     glDeleteBuffers(1, &VBO);
 }
 
-Shader* Shader::getInstance(const char *vert, const char *frag, int id)
-{
-    auto it = instances.find(id);
-    if (it != instances.end() && it->second != nullptr) {
-        return it->second;
-    }
-    
-    Shader* newShader = new Shader(vert, frag);
-    instances[id] = newShader;
-    return newShader;
-    
-}
 
-Shader *Shader::getInstance(int id)
-{
-    auto it = instances.find(id);
-    if (it != instances.end() && it->second != nullptr) {
-        return it->second;
-    }
-    return nullptr;
-}
 
 Shader::Shader(const char *vert, const char *frag)
 {
@@ -302,4 +281,25 @@ Shader::~Shader()
     if (selectShader != 0) {
         glDeleteProgram(selectShader);
     }
+}
+
+std::map<int, Shader*> Shader::instances;
+Shader* Shader::getInstance(const char *vert, const char *frag, int id) {
+    auto it = instances.find(id);
+    if (it != instances.end() && it->second != nullptr) {
+        return it->second;
+    }
+    
+    Shader* newShader = new Shader(vert, frag);
+    instances[id] = newShader;
+    return newShader;
+    
+}
+
+Shader *Shader::getInstance(int id) {
+    auto it = instances.find(id);
+    if (it != instances.end() && it->second != nullptr) {
+        return it->second;
+    }
+    return nullptr;
 }

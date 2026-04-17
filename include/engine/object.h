@@ -29,8 +29,7 @@ protected:
 public:
 
     Object() = default;
-    Object(const char* modelpath, const char* texturepath, const glm::vec3& position, ObjectType type);
-    Object(const char* modelpath, const glm::vec3& position, ObjectType type);
+    Object(const glm::vec3& position, ObjectType type);
     bool operator<(const Object& other) const;
     bool operator==(const Object& other) const;
     bool operator!=(const Object& other) const;
@@ -49,6 +48,8 @@ public:
     }
 
     static void init(const char* modelpath, const char* texturepath, const char* vert, const char* frag) {
+        Model::getInstance(modelpath, type);
+        imageBMP::getInstance(texturepath, type);
         Shader::getInstance(vert, frag, type);
     }
 };

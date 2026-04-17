@@ -3,24 +3,7 @@
 #include "utils/imageBMP.h"
 #include "utils/model.h"
 
-std::unique_ptr<Model> Object::model = nullptr;
-std::unique_ptr<imageBMP> Object::texture = nullptr;
-
-
-Object::Object(const char* modelpath, const char* texturepath, const glm::vec3& position, ObjectType type) {
-
-    printf("Create object");
-    this->model = std::make_unique<Model>(modelpath);
-    this->texture = std::make_unique<imageBMP>(texturepath);
-    this->position = position;
-    this->type = type;
-
-    count++;
-    id = count;
-}
-Object::Object(const char* modelpath, const glm::vec3& position, ObjectType type) {
-        printf("Create object");
-    this->model = std::make_unique<Model>(modelpath);
+Object::Object(const glm::vec3& position, ObjectType type) {
     this->position = position;
     this->type = type;
 
@@ -42,15 +25,6 @@ bool Object::operator!=(const Object& other) const {
 int Object::getId()
 {
     return this->id;
-}
-
-Model *Object::getModel()
-{
-    return model.get();
-}
-imageBMP* Object::getTexture()
-{
-    return texture.get();
 }
 
 glm::vec3 Object::getPosition() const {

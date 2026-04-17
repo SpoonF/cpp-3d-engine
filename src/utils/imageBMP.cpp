@@ -34,3 +34,24 @@ imageBMP::imageBMP(const char* filename) {
     fread(data, 1, size, file);
     fclose(file);
 }
+
+std::map<int, imageBMP*> imageBMP::instances;
+imageBMP* imageBMP::getInstance(const char* filename, int id) {
+    auto it = instances.find(id);
+    if (it != instances.end() && it->second != nullptr) {
+        return it->second;
+    }
+    
+    imageBMP* model = new imageBMP(filename);
+    instances[id] = model;
+    return model;
+    
+}
+
+imageBMP *imageBMP::getInstance(int id) {
+    auto it = instances.find(id);
+    if (it != instances.end() && it->second != nullptr) {
+        return it->second;
+    }
+    return nullptr;
+}

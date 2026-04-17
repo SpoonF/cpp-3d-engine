@@ -118,6 +118,8 @@ int main() {
 
     Shader::init(window, camera);
 
+    Block::init();
+
     
 
     Scene *scene = new Scene(window, camera);

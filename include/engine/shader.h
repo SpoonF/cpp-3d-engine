@@ -40,20 +40,18 @@ class Shader {
     std::queue<std::function<void()>> drawQueue = std::queue<std::function<void()>>();
 
     char* readShader(const char* filename);
-
+    Frustum frustum;
 // protected:
 
 public:
-    static std::map<int, Shader*> instances;
+    
     Shader() = default;
-
-    Frustum frustum;
+    Shader(const char* vert, const char* frag);
     void initShaderProgram(const char* vert, const char* frag);
     void drawObjectInstaced(Model* model, imageBMP* texture, const ShaderOptions& options);
-    static Shader* getInstance(const char* vert, const char* frag, int id);
-    static Shader* getInstance(int id);
 
-    Shader(const char* vert, const char* frag);
+
+
     void draw();
     
     void updateDeltaTime();
@@ -66,6 +64,10 @@ public:
     // void addDraw(const Object3D& object);
     // void addDraw(const Object3D& object, const std::vector<glm::vec3>& instances);
     static void init(GLFWwindow *window, std::shared_ptr<Camera> camera);
+
+    static std::map<int, Shader*> instances;
+    static Shader* getInstance(const char* vert, const char* frag, int id);
+    static Shader* getInstance(int id);
 
     ~Shader();
 };

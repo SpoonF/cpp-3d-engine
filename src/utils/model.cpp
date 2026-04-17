@@ -69,3 +69,24 @@ Model::Model(const char* filename) {
         normals.push_back(tmp_normals[ fragNorm[i] - 1 ]);
     }
 }
+
+std::map<int, Model*> Model::instances;
+Model* Model::getInstance(const char* filename, int id) {
+    auto it = instances.find(id);
+    if (it != instances.end() && it->second != nullptr) {
+        return it->second;
+    }
+    
+    Model* model = new Model(filename);
+    instances[id] = model;
+    return model;
+    
+}
+
+Model *Model::getInstance(int id) {
+    auto it = instances.find(id);
+    if (it != instances.end() && it->second != nullptr) {
+        return it->second;
+    }
+    return nullptr;
+}
