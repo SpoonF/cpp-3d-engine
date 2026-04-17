@@ -7,7 +7,6 @@ in vec3 FragPos;
 out vec3 color;
 
 uniform sampler2D textureSampler;
-uniform int hasTexture;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
@@ -19,8 +18,6 @@ float specularStrength = 0.4;
 void main()
 {
     vec3 textur = texture(textureSampler, UV).rgb;
-
-
     vec3 ambiant = ambinatStrength * lightColor;
 
     // vec3 result = ambiant * textur;

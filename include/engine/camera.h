@@ -16,8 +16,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "object.h"
-#include "world.h"
+class Object;
+class Chunk;
 
 struct CameraSettings {
     float fov = 70.0f;

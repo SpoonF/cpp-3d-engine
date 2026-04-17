@@ -1,0 +1,792 @@
+==18073== Memcheck, a memory error detector
+==18073== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==18073== Using Valgrind-3.22.0-bd4db67b1d-20231031 and LibVEX; rerun with -h for copyright info
+==18073== Command: ./game
+==18073== 
+--18073-- Valgrind options:
+--18073--    --tool=memcheck
+--18073--    --leak-check=full
+--18073--    --track-origins=yes
+--18073--    -v
+--18073-- Contents of /proc/version:
+--18073--   Linux version 6.17.0-20-generic (buildd@lcy02-amd64-120) (x86_64-linux-gnu-gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, GNU ld (GNU Binutils for Ubuntu) 2.42) #20~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Mar 19 01:28:37 UTC 2
+--18073-- 
+--18073-- Arch and hwcaps: AMD64, LittleEndian, amd64-cx16-lzcnt-rdtscp-sse3-ssse3-avx-avx2-bmi-f16c-rdrand-rdseed
+--18073-- Page sizes: currently 4096, max supported 4096
+--18073-- Valgrind library directory: /usr/libexec/valgrind
+--18073-- Reading syms from /home/alex/projects/cpp-3d-engine/game
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+--18073--   Considering /usr/lib/debug/.build-id/da/07864eb4c1b06504b8688d25d7e84759fe708d.debug ..
+--18073--   .. build-id is valid
+--18073-- Reading syms from /usr/libexec/valgrind/memcheck-amd64-linux
+--18073--    object doesn't have a dynamic symbol table
+--18073-- Scheduler: using generic scheduler lock implementation.
+--18073-- Reading suppressions file: /usr/libexec/valgrind/default.supp
+==18073== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-18073-by-alex-on-???
+==18073== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-18073-by-alex-on-???
+==18073== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-18073-by-alex-on-???
+==18073== 
+==18073== TO CONTROL THIS PROCESS USING vgdb (which you probably
+==18073== don't want to do, unless you know exactly what you're doing,
+==18073== or are doing some strange experiment):
+==18073==   /usr/bin/vgdb --pid=18073 ...command...
+==18073== 
+==18073== TO DEBUG THIS PROCESS USING GDB: start GDB like this
+==18073==   /path/to/gdb ./game
+==18073== and then give GDB the following command
+==18073==   target remote | /usr/bin/vgdb --pid=18073
+==18073== --pid is optional if only one valgrind process is running
+==18073== 
+--18073-- REDIR: 0x4028b00 (ld-linux-x86-64.so.2:strlen) redirected to 0x580c2e1a (???)
+--18073-- REDIR: 0x40272b0 (ld-linux-x86-64.so.2:index) redirected to 0x580c2e34 (???)
+--18073-- Reading syms from /usr/libexec/valgrind/vgpreload_core-amd64-linux.so
+--18073-- Reading syms from /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so
+==18073== WARNING: new redirection conflicts with existing -- ignoring it
+--18073--     old: 0x04028b00 (strlen              ) R-> (0000.0) 0x580c2e1a ???
+--18073--     new: 0x04028b00 (strlen              ) R-> (2007.0) 0x0484f340 strlen
+--18073-- REDIR: 0x40274e0 (ld-linux-x86-64.so.2:strcmp) redirected to 0x4850460 (strcmp)
+--18073-- REDIR: 0x4026910 (ld-linux-x86-64.so.2:mempcpy) redirected to 0x4853cd0 (mempcpy)
+--18073-- Reading syms from /usr/local/lib/libFastNoise.so
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libGL.so.1.7.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libglfw.so.3.3
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libGLEW.so.2.2.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libm.so.6
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libc.so.6
+--18073--   Considering /usr/lib/debug/.build-id/8e/9fd827446c24067541ac5390e6f527fb5947bb.debug ..
+--18073--   .. build-id is valid
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libGLdispatch.so.0.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libGLX.so.0.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libXau.so.6.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libXdmcp.so.6.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libbsd.so.0.12.1
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libmd.so.0.1.0
+--18073-- REDIR: 0x4028ca0 (ld-linux-x86-64.so.2:strncmp) redirected to 0x484fc90 (strncmp)
+--18073-- REDIR: 0x52bc070 (libc.so.6:strnlen) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52bc100 (libc.so.6:strpbrk) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52ba1c0 (libc.so.6:strcmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52d33b0 (libc.so.6:wcsnlen) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52b92b0 (libc.so.6:memset) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52d2b20 (libc.so.6:wcslen) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x533e3f0 (libc.so.6:__memcpy_chk) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52b9220 (libc.so.6:memrchr) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52d3350 (libc.so.6:wcsncpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52b8740 (libc.so.6:memcpy@@GLIBC_2.14) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52d18e0 (libc.so.6:wcschr) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52ba0b0 (libc.so.6:index) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52bc130 (libc.so.6:rindex) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52d1990 (libc.so.6:wcscmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52b94d0 (libc.so.6:stpncpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52dfeb0 (libc.so.6:wmemchr) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52bbf10 (libc.so.6:strncmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52b9530 (libc.so.6:strcasecmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52bb330 (libc.so.6:strcspn) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52d28f0 (libc.so.6:wcscpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52ba040 (libc.so.6:strcat) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52bbe10 (libc.so.6:strncasecmp_l) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52ba130 (libc.so.6:strchrnul) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52b8650 (libc.so.6:bcmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52bb2c0 (libc.so.6:strcpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52b95d0 (libc.so.6:strcasecmp_l) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52bbce0 (libc.so.6:strlen) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52bbfb0 (libc.so.6:strncpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52dff30 (libc.so.6:wmemcmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x533e510 (libc.so.6:__memmove_chk) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+==18073== WARNING: new redirection conflicts with existing -- ignoring it
+--18073--     old: 0x0538fa50 (__memcpy_chk_avx_una) R-> (2030.0) 0x04853dd0 __memcpy_chk
+--18073--     new: 0x0538fa50 (__memcpy_chk_avx_una) R-> (2024.0) 0x04853740 __memmove_chk
+--18073-- REDIR: 0x52b9460 (libc.so.6:stpcpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52b8fe0 (libc.so.6:memmove) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+==18073== Preferring higher priority redirection:
+--18073--     old: 0x0538fa80 (__memcpy_avx_unalign) R-> (2018.0) 0x04851580 __memcpy_avx_unaligned_erms
+--18073--     new: 0x0538fa80 (__memcpy_avx_unalign) R-> (2018.1) 0x04852d60 memmove
+--18073-- REDIR: 0x52b85d0 (libc.so.6:memchr) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52bc300 (libc.so.6:strspn) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52b9100 (libc.so.6:mempcpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52bbd70 (libc.so.6:strncasecmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--18073-- REDIR: 0x52bcbc0 (libc.so.6:strstr) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+==18073== WARNING: new redirection conflicts with existing -- ignoring it
+--18073--     old: 0x0538fa50 (__memcpy_chk_avx_una) R-> (2030.0) 0x04853dd0 __memcpy_chk
+--18073--     new: 0x0538fa50 (__memcpy_chk_avx_una) R-> (2024.0) 0x04853740 __memmove_chk
+--18073-- REDIR: 0x5394670 (libc.so.6:__strrchr_avx2) redirected to 0x484ed20 (rindex)
+--18073-- REDIR: 0x52b4670 (libc.so.6:malloc) redirected to 0x48467b0 (malloc)
+--18073-- REDIR: 0x53927c0 (libc.so.6:__strlen_avx2) redirected to 0x484f220 (strlen)
+--18073-- REDIR: 0x53938a0 (libc.so.6:__strncmp_avx2) redirected to 0x484fab0 (strncmp)
+--18073-- REDIR: 0x52b50c0 (libc.so.6:realloc) redirected to 0x484db00 (realloc)
+--18073-- REDIR: 0x538fa50 (libc.so.6:__memcpy_chk_avx_unaligned_erms) redirected to 0x4853dd0 (__memcpy_chk)
+--18073-- REDIR: 0x5392010 (libc.so.6:__strcmp_avx2) redirected to 0x4850360 (strcmp)
+--18073-- REDIR: 0x538f320 (libc.so.6:__memcmp_avx2_movbe) redirected to 0x4852480 (bcmp)
+--18073-- REDIR: 0x4f2d8e0 (libstdc++.so.6:operator new(unsigned long)) redirected to 0x4846f30 (operator new(unsigned long))
+--18073-- REDIR: 0x52b57c0 (libc.so.6:calloc) redirected to 0x484d8a0 (calloc)
+--18073-- REDIR: 0x5390480 (libc.so.6:__memset_avx2_unaligned_erms) redirected to 0x4852c50 (memset)
+--18073-- REDIR: 0x538f080 (libc.so.6:__memchr_avx2) redirected to 0x48504e0 (memchr)
+--18073-- REDIR: 0x538fa40 (libc.so.6:__mempcpy_avx_unaligned_erms) redirected to 0x48538d0 (mempcpy)
+--18073-- REDIR: 0x5391be0 (libc.so.6:__strchr_avx2) redirected to 0x484ef00 (index)
+--18073-- REDIR: 0x538fa80 (libc.so.6:__memcpy_avx_unaligned_erms) redirected to 0x4852d60 (memmove)
+--18073-- REDIR: 0x52b4d50 (libc.so.6:free) redirected to 0x4849820 (free)
+--18073-- REDIR: 0x5390ed0 (libc.so.6:__strcasecmp_l_avx2) redirected to 0x484ff70 (strcasecmp_l)
+--18073-- REDIR: 0x5390730 (libc.so.6:__stpcpy_avx2) redirected to 0x48525a0 (stpcpy)
+--18073-- REDIR: 0x53943a0 (libc.so.6:__strnlen_avx2) redirected to 0x484f1c0 (strnlen)
+--18073-- REDIR: 0x5391e20 (libc.so.6:__strchrnul_avx2) redirected to 0x48537b0 (strchrnul)
+--18073-- REDIR: 0x533efc0 (libc.so.6:__strcpy_chk) redirected to 0x4853830 (__strcpy_chk)
+--18073-- REDIR: 0x5393f00 (libc.so.6:__strncpy_avx2) redirected to 0x484f4f0 (strncpy)
+--18073-- REDIR: 0x52cee10 (libc.so.6:__strstr_sse2_unaligned) redirected to 0x4853e40 (strstr)
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libXxf86vm.so.1.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libXi.so.6.1.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libXrandr.so.2.2.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libXrender.so.1.3.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libXcursor.so.1.0.2
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libXfixes.so.3.1.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libXinerama.so.1.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libX11-xcb.so.1.0.0
+--18073-- REDIR: 0x53aeff0 (libc.so.6:__strcspn_sse42) redirected to 0x4854010 (strcspn)
+--18073-- REDIR: 0x53b1c90 (libc.so.6:__strspn_sse42) redirected to 0x4854110 (strspn)
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libGLX_mesa.so.0.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libgallium-25.2.8-0ubuntu0.24.04.1.so
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libdrm.so.2.125.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libxcb-glx.so.0.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libxcb-shm.so.0.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libexpat.so.1.9.1
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libxcb-dri3.so.0.1.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libxcb-present.so.0.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libxcb-xfixes.so.0.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libLLVM.so.20.1
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libz.so.1.3
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libzstd.so.1.5.5
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libsensors.so.5.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libxcb-randr.so.0.1.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libxcb-sync.so.1.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libxshmfence.so.1.0.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libdrm_amdgpu.so.1.125.0
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libelf-0.190.so
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libdrm_intel.so.1.125.0
+--18073-- REDIR: 0x4026bf0 (ld-linux-x86-64.so.2:stpcpy) redirected to 0x4852960 (stpcpy)
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libffi.so.8.1.4
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libedit.so.2.0.72
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libxml2.so.2.9.14
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libpciaccess.so.0.11.1
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libtinfo.so.6.4
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libicuuc.so.74.2
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/liblzma.so.5.4.5
+--18073-- Reading syms from /usr/lib/x86_64-linux-gnu/libicudata.so.74.2
+==18073== WARNING: new redirection conflicts with existing -- ignoring it
+--18073--     old: 0x0538fa50 (__memcpy_chk_avx_una) R-> (2030.0) 0x04853dd0 __memcpy_chk
+--18073--     new: 0x0538fa50 (__memcpy_chk_avx_una) R-> (2024.0) 0x04853740 __memmove_chk
+--18073-- REDIR: 0x52bbeb0 (libc.so.6:strncat) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+==18073== WARNING: new redirection conflicts with existing -- ignoring it
+--18073--     old: 0x0538fa50 (__memcpy_chk_avx_una) R-> (2030.0) 0x04853dd0 __memcpy_chk
+--18073--     new: 0x0538fa50 (__memcpy_chk_avx_una) R-> (2024.0) 0x04853740 __memmove_chk
+--18073-- REDIR: 0x4f2da30 (libstdc++.so.6:operator new(unsigned long, std::align_val_t, std::nothrow_t const&)) redirected to 0x4847f10 (operator new(unsigned long, std::align_val_t, std::nothrow_t const&))
+--18073-- REDIR: 0x4f2b8b0 (libstdc++.so.6:operator delete(void*, unsigned long)) redirected to 0x484a530 (operator delete(void*, unsigned long))
+--18073-- REDIR: 0x4f2daa0 (libstdc++.so.6:operator delete(void*, unsigned long, std::align_val_t)) redirected to 0x484aeb0 (operator delete(void*, unsigned long, std::align_val_t))
+--18073-- memcheck GC: 1000 nodes, 232 survivors (23.2%)
+--18073-- memcheck GC: 1014 new table size (driftup)
+--18073-- REDIR: 0x5392570 (libc.so.6:__strcpy_avx2) redirected to 0x484f370 (strcpy)
+--18073-- REDIR: 0x52b6450 (libc.so.6:posix_memalign) redirected to 0x484e260 (posix_memalign)
+--18073-- WARNING: Serious error when reading debug info
+--18073-- When reading debug info from /memfd:xshmfence (deleted):
+--18073-- failed to stat64/stat this file
+--18073-- REDIR: 0x4f2d950 (libstdc++.so.6:operator new[](unsigned long)) redirected to 0x4848550 (operator new[](unsigned long))
+--18073-- REDIR: 0x4f2b8d0 (libstdc++.so.6:operator delete[](void*)) redirected to 0x484bec0 (operator delete[](void*))
+--18073-- REDIR: 0x4f2b8e0 (libstdc++.so.6:operator delete[](void*, unsigned long)) redirected to 0x484c370 (operator delete[](void*, unsigned long))
+Shader initialized with camera: 0x1547f820
+Shader initialized with window: 0x5746470
+Loading terrain...
+Terrain is load...
+Создана шейдерная программа: 3
+Before glLinkProgram - shaderProgram=3
+OpenGL context: 0x5746470
+[Debag]: Start updates
+Full render: 343.0840 ms
+Full render: 25.7670 ms
+Full render: 19.1470 ms
+Full render: 16.6220 ms
+Full render: 16.3730 ms
+Full render: 16.1020 ms
+Full render: 15.6240 ms
+Full render: 15.3600 ms
+Full render: 16.2820 ms
+Full render: 16.3450 ms
+Full render: 17.5890 ms
+Full render: 17.1990 ms
+Full render: 16.4080 ms
+Full render: 16.7650 ms
+Full render: 16.8970 ms
+Full render: 16.8980 ms
+Full render: 16.1040 ms
+Full render: 17.1670 ms
+Full render: 15.9850 ms
+Full render: 19.0840 ms
+Full render: 19.8230 ms
+Full render: 19.3900 ms
+Full render: 17.1120 ms
+Full render: 16.0750 ms
+Full render: 18.5350 ms
+Full render: 17.7360 ms
+Full render: 16.8920 ms
+Full render: 19.7720 ms
+Full render: 17.2330 ms
+Full render: 20.6650 ms
+Full render: 17.1240 ms
+Full render: 20.4470 ms
+Full render: 20.9320 ms
+Full render: 20.1800 ms
+Full render: 20.5390 ms
+Full render: 22.0350 ms
+Full render: 20.6610 ms
+Full render: 19.8250 ms
+Full render: 20.4310 ms
+Full render: 19.4820 ms
+Full render: 19.6310 ms
+Full render: 20.9830 ms
+Full render: 19.8900 ms
+Full render: 20.8310 ms
+Full render: 21.3320 ms
+Full render: 20.8420 ms
+Full render: 21.1060 ms
+Full render: 20.4340 ms
+Full render: 20.3640 ms
+Full render: 20.4370 ms
+Full render: 19.9460 ms
+Full render: 20.4760 ms
+Full render: 19.9280 ms
+Full render: 22.3920 ms
+Full render: 19.1550 ms
+Full render: 21.2430 ms
+Full render: 21.0170 ms
+Full render: 19.9610 ms
+Full render: 20.6720 ms
+Full render: 21.3520 ms
+Full render: 21.6770 ms
+Full render: 20.7840 ms
+Full render: 21.1820 ms
+Full render: 20.5630 ms
+Full render: 20.4280 ms
+Full render: 20.3520 ms
+Full render: 20.0750 ms
+Full render: 20.5990 ms
+Full render: 19.9250 ms
+Full render: 20.6870 ms
+Full render: 20.7760 ms
+Full render: 22.2740 ms
+Full render: 21.0630 ms
+Full render: 20.1390 ms
+Full render: 21.2650 ms
+Full render: 21.3850 ms
+Full render: 21.5740 ms
+Full render: 21.2170 ms
+Full render: 21.2490 ms
+Full render: 20.5340 ms
+Full render: 21.5590 ms
+Full render: 20.2520 ms
+Full render: 21.0730 ms
+Full render: 21.2880 ms
+Full render: 21.4700 ms
+Full render: 20.4350 ms
+Full render: 21.0910 ms
+Full render: 21.0270 ms
+Full render: 20.1040 ms
+Full render: 20.7020 ms
+Full render: 21.9300 ms
+Full render: 21.1160 ms
+Full render: 21.4780 ms
+Full render: 21.0320 ms
+Full render: 20.3930 ms
+Full render: 20.0130 ms
+Full render: 20.4890 ms
+Full render: 20.4700 ms
+Full render: 20.2570 ms
+Full render: 20.4910 ms
+Full render: 20.6900 ms
+Full render: 20.5070 ms
+Full render: 20.4480 ms
+Full render: 20.7200 ms
+Full render: 19.8500 ms
+Full render: 20.9930 ms
+Full render: 21.1500 ms
+Full render: 21.3490 ms
+Full render: 21.4840 ms
+Full render: 21.5620 ms
+Full render: 22.9270 ms
+Full render: 21.1670 ms
+Full render: 20.7150 ms
+Full render: 20.7340 ms
+Full render: 20.4920 ms
+Full render: 20.5390 ms
+Full render: 21.4590 ms
+Full render: 20.7360 ms
+Full render: 20.8360 ms
+Full render: 20.7020 ms
+Full render: 22.3160 ms
+Full render: 20.2380 ms
+Full render: 21.2490 ms
+Full render: 21.3660 ms
+Full render: 21.7590 ms
+Full render: 21.6170 ms
+Full render: 22.5400 ms
+Full render: 20.8540 ms
+Full render: 21.2660 ms
+Full render: 20.4890 ms
+Full render: 21.8590 ms
+Full render: 20.6270 ms
+Full render: 20.6010 ms
+Full render: 20.7220 ms
+Full render: 19.4810 ms
+Full render: 20.1040 ms
+Full render: 20.3520 ms
+Full render: 20.4480 ms
+Full render: 21.3600 ms
+Full render: 21.5500 ms
+Full render: 21.5020 ms
+Full render: 21.4560 ms
+Full render: 21.5260 ms
+Full render: 20.9880 ms
+Full render: 20.7540 ms
+Full render: 20.4170 ms
+Full render: 20.5720 ms
+Full render: 21.3830 ms
+Full render: 21.0050 ms
+Full render: 20.7630 ms
+Full render: 21.1580 ms
+Full render: 20.1400 ms
+Full render: 20.9090 ms
+Full render: 20.2910 ms
+Full render: 21.8080 ms
+Full render: 21.8580 ms
+Full render: 21.8250 ms
+Full render: 21.0710 ms
+Full render: 20.9670 ms
+Full render: 20.9560 ms
+Full render: 20.7220 ms
+Full render: 20.9380 ms
+Full render: 20.6400 ms
+Full render: 20.8880 ms
+Full render: 23.7610 ms
+Full render: 21.1720 ms
+Full render: 20.8270 ms
+Full render: 21.9610 ms
+Full render: 20.7000 ms
+Full render: 20.7910 ms
+Full render: 20.5520 ms
+Full render: 23.1860 ms
+Full render: 21.0490 ms
+Full render: 21.4290 ms
+Full render: 20.6440 ms
+Full render: 20.8470 ms
+Full render: 17.1060 ms
+Full render: 20.7240 ms
+Full render: 20.7380 ms
+Full render: 20.2180 ms
+Full render: 20.7470 ms
+Full render: 19.3170 ms
+Full render: 21.0140 ms
+Full render: 20.4350 ms
+Full render: 21.5650 ms
+Full render: 21.4190 ms
+Full render: 21.1710 ms
+Full render: 21.2200 ms
+Full render: 21.6190 ms
+Full render: 22.9640 ms
+Full render: 21.2730 ms
+Full render: 20.5710 ms
+Full render: 20.6260 ms
+Full render: 20.3420 ms
+Full render: 21.0760 ms
+Full render: 20.4450 ms
+Full render: 20.6970 ms
+Full render: 20.9990 ms
+Full render: 20.4340 ms
+Full render: 20.2140 ms
+Full render: 20.9550 ms
+Full render: 21.5010 ms
+Full render: 21.0230 ms
+Full render: 21.2550 ms
+Full render: 20.3350 ms
+Full render: 20.2290 ms
+Full render: 20.8590 ms
+Full render: 20.4260 ms
+Full render: 20.5900 ms
+Full render: 20.3370 ms
+Full render: 20.8500 ms
+Full render: 20.2510 ms
+Full render: 19.9440 ms
+Full render: 19.2270 ms
+Full render: 20.7490 ms
+Full render: 20.8720 ms
+Full render: 21.1040 ms
+Full render: 21.4120 ms
+Full render: 20.9140 ms
+Full render: 20.4820 ms
+Full render: 20.6620 ms
+Full render: 19.0650 ms
+Full render: 20.9570 ms
+Full render: 20.4160 ms
+Full render: 20.5060 ms
+Full render: 20.2210 ms
+Full render: 20.4790 ms
+Full render: 20.5110 ms
+Full render: 20.7110 ms
+Full render: 20.6430 ms
+Full render: 20.9070 ms
+Full render: 20.3490 ms
+Full render: 21.0820 ms
+Full render: 21.2260 ms
+Full render: 20.8380 ms
+Full render: 21.1380 ms
+Full render: 21.1400 ms
+Full render: 22.5620 ms
+Full render: 20.9480 ms
+Full render: 20.6750 ms
+Full render: 20.5180 ms
+Full render: 21.2680 ms
+Full render: 20.9470 ms
+Full render: 21.3200 ms
+Full render: 20.6750 ms
+Full render: 20.9140 ms
+Full render: 20.6780 ms
+Full render: 20.2030 ms
+Full render: 21.5850 ms
+Full render: 21.4880 ms
+Full render: 21.3250 ms
+Full render: 21.2820 ms
+Full render: 21.5860 ms
+Full render: 21.1740 ms
+Full render: 21.2690 ms
+Full render: 20.4580 ms
+Full render: 20.8680 ms
+Full render: 20.5560 ms
+Full render: 20.5480 ms
+Full render: 20.3820 ms
+Full render: 22.2250 ms
+Full render: 21.1120 ms
+Full render: 20.4770 ms
+Full render: 20.5260 ms
+Full render: 21.5990 ms
+Full render: 21.8270 ms
+Full render: 21.1970 ms
+Full render: 21.7300 ms
+Full render: 20.9580 ms
+Full render: 21.4690 ms
+Full render: 21.0240 ms
+Full render: 20.6740 ms
+Full render: 20.3810 ms
+Full render: 20.8110 ms
+Full render: 20.5920 ms
+Full render: 20.3610 ms
+Full render: 20.8520 ms
+Full render: 20.5110 ms
+Full render: 20.5720 ms
+Full render: 20.3710 ms
+Full render: 21.6300 ms
+Full render: 21.4260 ms
+Full render: 21.1420 ms
+Full render: 21.0320 ms
+Full render: 23.8500 ms
+Full render: 21.7590 ms
+Full render: 20.3560 ms
+Full render: 20.9540 ms
+Full render: 21.0970 ms
+Full render: 20.8240 ms
+Full render: 20.6300 ms
+Full render: 20.8370 ms
+Full render: 20.2830 ms
+Full render: 21.2050 ms
+Full render: 20.6850 ms
+Full render: 20.7040 ms
+Full render: 21.8520 ms
+Full render: 22.1020 ms
+Full render: 21.6310 ms
+Full render: 21.9310 ms
+Full render: 21.1260 ms
+Full render: 20.2840 ms
+Full render: 20.2650 ms
+Full render: 21.2470 ms
+Full render: 21.0420 ms
+Full render: 22.1300 ms
+Full render: 20.8360 ms
+Full render: 21.4990 ms
+Full render: 22.9630 ms
+Full render: 21.4010 ms
+Full render: 20.7680 ms
+Full render: 21.5820 ms
+Full render: 23.6070 ms
+Full render: 22.3390 ms
+Full render: 21.8560 ms
+Full render: 21.9290 ms
+Full render: 21.5290 ms
+Full render: 21.9630 ms
+Full render: 21.6060 ms
+Full render: 21.4820 ms
+Full render: 21.0950 ms
+Full render: 20.8600 ms
+Full render: 20.7210 ms
+Full render: 21.3070 ms
+Full render: 17.6650 ms
+Full render: 20.9730 ms
+Full render: 20.8160 ms
+Full render: 19.9410 ms
+Full render: 21.9810 ms
+Full render: 21.2840 ms
+Full render: 21.7820 ms
+Full render: 21.1090 ms
+Full render: 23.0610 ms
+Full render: 20.9--18073-- Discarding syms at 0x5b51660-0x5b565ec in /usr/lib/x86_64-linux-gnu/libXcursor.so.1.0.2 (have_dinfo 1)
+--18073-- Discarding syms at 0x5b5d300-0x5b5fa4a in /usr/lib/x86_64-linux-gnu/libXfixes.so.3.1.0 (have_dinfo 1)
+--18073-- Discarding syms at 0x5b383a0-0x5b3eee9 in /usr/lib/x86_64-linux-gnu/libXrandr.so.2.2.0 (have_dinfo 1)
+--18073-- Discarding syms at 0x5b641a0-0x5b64b0e in /usr/lib/x86_64-linux-gnu/libXinerama.so.1.0.0 (have_dinfo 1)
+--18073-- Discarding syms at 0x5b45440-0x5b4b787 in /usr/lib/x86_64-linux-gnu/libXrender.so.1.3.0 (have_dinfo 1)
+--18073-- Discarding syms at 0x5b264a0-0x5b31b99 in /usr/lib/x86_64-linux-gnu/libXi.so.6.1.0 (have_dinfo 1)
+--18073-- REDIR: 0x4f2b8a0 (libstdc++.so.6:operator delete(void*)) redirected to 0x484a080 (operator delete(void*))
+530 ms
+Full render: 24.2160 ms
+Full render: 20.8370 ms
+Full render: 21.1580 ms
+Full render: 20.8620 ms
+Full render: 21.2700 ms
+Full render: 20.9090 ms
+Full render: 22.4380 ms
+Full render: 20.9660 ms
+Full render: 22.2370 ms
+Full render: 21.1150 ms
+Full render: 21.6940 ms
+Full render: 21.2180 ms
+Full render: 21.3850 ms
+Full render: 20.9830 ms
+Full render: 21.5930 ms
+Full render: 21.1190 ms
+Full render: 21.6050 ms
+Full render: 20.5390 ms
+Full render: 20.7300 ms
+Full render: 20.9850 ms
+Full render: 21.0420 ms
+Full render: 20.9140 ms
+Full render: 20.7960 ms
+Full render: 23.4040 ms
+Full render: 22.4140 ms
+Full render: 21.5880 ms
+Full render: 22.1080 ms
+Full render: 21.4910 ms
+Full render: 21.8130 ms
+Full render: 21.0970 ms
+Full render: 21.1660 ms
+Full render: 20.7670 ms
+Full render: 19.1240 ms
+Full render: 20.9120 ms
+Full render: 20.3410 ms
+Full render: 20.7560 ms
+Full render: 20.5570 ms
+Full render: 20.7450 ms
+Full render: 20.7830 ms
+Full render: 20.6980 ms
+Full render: 21.7680 ms
+Full render: 21.3840 ms
+Full render: 21.6240 ms
+Full render: 21.3100 ms
+Full render: 21.5440 ms
+Full render: 21.6070 ms
+Full render: 21.4270 ms
+Full render: 20.4770 ms
+Full render: 19.9510 ms
+Full render: 22.4210 ms
+Full render: 20.8720 ms
+Full render: 20.7890 ms
+Full render: 21.0050 ms
+Full render: 20.5520 ms
+Full render: 20.7070 ms
+Full render: 20.8550 ms
+Full render: 22.3130 ms
+Full render: 21.3560 ms
+Full render: 21.8880 ms
+Full render: 21.4540 ms
+Full render: 21.3230 ms
+Full render: 21.2080 ms
+Full render: 21.2900 ms
+Full render: 21.0890 ms
+Full render: 21.3590 ms
+Full render: 21.3650 ms
+Full render: 20.9830 ms
+Full render: 21.7400 ms
+Full render: 20.6880 ms
+Full render: 20.7920 ms
+Full render: 20.6640 ms
+Full render: 21.0980 ms
+Full render: 22.3620 ms
+Full render: 21.5660 ms
+Full render: 21.9230 ms
+Full render: 23.1810 ms
+Full render: 21.4790 ms
+Full render: 21.3700 ms
+Full render: 21.5930 ms
+Full render: 21.3480 ms
+Full render: 21.7530 ms
+Full render: 21.3600 ms
+Full render: 21.1180 ms
+Full render: 20.9670 ms
+Full render: 20.8840 ms
+Full render: 21.3850 ms
+Full render: 20.9710 ms
+Full render: 21.4930 ms
+Full render: 22.4180 ms
+Full render: 21.5610 ms
+Full render: 21.5800 ms
+Full render: 21.6730 ms
+Full render: 21.0460 ms
+==18073== 
+==18073== HEAP SUMMARY:
+==18073==     in use at exit: 4,496,933 bytes in 3,302 blocks
+==18073==   total heap usage: 130,333 allocs, 127,031 frees, 31,450,370 bytes allocated
+==18073== 
+==18073== Searching for pointers to 3,302 not-freed blocks
+==18073== Checked 5,467,128 bytes
+==18073== 
+==18073== 776 (200 direct, 576 indirect) bytes in 1 blocks are definitely lost in loss record 2,639 of 2,668
+==18073==    at 0x4846FA3: operator new(unsigned long) (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18073==    by 0x10EE69: Shader::getInstance(char const*, char const*, int) (shader.cpp:222)
+==18073==    by 0x10F94E: Block::Block(glm::vec<3, float, (glm::qualifier)0> const&) (block.cpp:6)
+==18073==    by 0x12A587: void std::_Construct<Block, glm::vec<3, float, (glm::qualifier)0> >(Block*, glm::vec<3, float, (glm::qualifier)0>&&) (stl_construct.h:119)
+==18073==    by 0x1285DD: construct<Block, glm::vec<3, float, (glm::qualifier)0> > (alloc_traits.h:661)
+==18073==    by 0x1285DD: std::_Sp_counted_ptr_inplace<Block, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<glm::vec<3, float, (glm::qualifier)0> >(std::allocator<void>, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:604)
+==18073==    by 0x1266AB: std::__shared_count<(__gnu_cxx::_Lock_policy)2>::__shared_count<Block, std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(Block*&, std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:971)
+==18073==    by 0x122F73: std::__shared_ptr<Block, (__gnu_cxx::_Lock_policy)2>::__shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:1712)
+==18073==    by 0x11F142: std::shared_ptr<Block>::shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:464)
+==18073==    by 0x11801E: std::shared_ptr<std::enable_if<!std::is_array<Block>::value, Block>::type> std::make_shared<Block, glm::vec<3, float, (glm::qualifier)0> >(glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:1010)
+==18073==    by 0x1119FE: main (main.cpp:131)
+==18073== 
+==18073== 2,112 (168 direct, 1,944 indirect) bytes in 1 blocks are definitely lost in loss record 2,649 of 2,668
+==18073==    at 0x4846FA3: operator new(unsigned long) (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18073==    by 0x111906: main (main.cpp:121)
+==18073== 
+==18073== 522,086 bytes in 1 blocks are possibly lost in loss record 2,661 of 2,668
+==18073==    at 0x48485C3: operator new[](unsigned long) (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18073==    by 0x10CE33: imageBMP::imageBMP(char const*) (imageBMP.cpp:31)
+==18073==    by 0x115847: std::__detail::_MakeUniq<imageBMP>::__single_object std::make_unique<imageBMP, char const*&>(char const*&) (unique_ptr.h:1070)
+==18073==    by 0x10F5F8: Object::Object(char const*, char const*, glm::vec<3, float, (glm::qualifier)0> const&, ObjectType) (object.cpp:12)
+==18073==    by 0x10F91A: Block::Block(glm::vec<3, float, (glm::qualifier)0> const&) (block.cpp:5)
+==18073==    by 0x12A587: void std::_Construct<Block, glm::vec<3, float, (glm::qualifier)0> >(Block*, glm::vec<3, float, (glm::qualifier)0>&&) (stl_construct.h:119)
+==18073==    by 0x1285DD: construct<Block, glm::vec<3, float, (glm::qualifier)0> > (alloc_traits.h:661)
+==18073==    by 0x1285DD: std::_Sp_counted_ptr_inplace<Block, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<glm::vec<3, float, (glm::qualifier)0> >(std::allocator<void>, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:604)
+==18073==    by 0x1266AB: std::__shared_count<(__gnu_cxx::_Lock_policy)2>::__shared_count<Block, std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(Block*&, std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:971)
+==18073==    by 0x122F73: std::__shared_ptr<Block, (__gnu_cxx::_Lock_policy)2>::__shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:1712)
+==18073==    by 0x11F142: std::shared_ptr<Block>::shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:464)
+==18073==    by 0x11801E: std::shared_ptr<std::enable_if<!std::is_array<Block>::value, Block>::type> std::make_shared<Block, glm::vec<3, float, (glm::qualifier)0> >(glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:1010)
+==18073==    by 0x111BFE: main (main.cpp:135)
+==18073== 
+==18073== 522,086 bytes in 1 blocks are possibly lost in loss record 2,662 of 2,668
+==18073==    at 0x48485C3: operator new[](unsigned long) (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18073==    by 0x10CE33: imageBMP::imageBMP(char const*) (imageBMP.cpp:31)
+==18073==    by 0x115847: std::__detail::_MakeUniq<imageBMP>::__single_object std::make_unique<imageBMP, char const*&>(char const*&) (unique_ptr.h:1070)
+==18073==    by 0x10F5F8: Object::Object(char const*, char const*, glm::vec<3, float, (glm::qualifier)0> const&, ObjectType) (object.cpp:12)
+==18073==    by 0x10F91A: Block::Block(glm::vec<3, float, (glm::qualifier)0> const&) (block.cpp:5)
+==18073==    by 0x12A587: void std::_Construct<Block, glm::vec<3, float, (glm::qualifier)0> >(Block*, glm::vec<3, float, (glm::qualifier)0>&&) (stl_construct.h:119)
+==18073==    by 0x1285DD: construct<Block, glm::vec<3, float, (glm::qualifier)0> > (alloc_traits.h:661)
+==18073==    by 0x1285DD: std::_Sp_counted_ptr_inplace<Block, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<glm::vec<3, float, (glm::qualifier)0> >(std::allocator<void>, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:604)
+==18073==    by 0x1266AB: std::__shared_count<(__gnu_cxx::_Lock_policy)2>::__shared_count<Block, std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(Block*&, std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:971)
+==18073==    by 0x122F73: std::__shared_ptr<Block, (__gnu_cxx::_Lock_policy)2>::__shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:1712)
+==18073==    by 0x11F142: std::shared_ptr<Block>::shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:464)
+==18073==    by 0x11801E: std::shared_ptr<std::enable_if<!std::is_array<Block>::value, Block>::type> std::make_shared<Block, glm::vec<3, float, (glm::qualifier)0> >(glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:1010)
+==18073==    by 0x111C7E: main (main.cpp:136)
+==18073== 
+==18073== 522,086 bytes in 1 blocks are possibly lost in loss record 2,663 of 2,668
+==18073==    at 0x48485C3: operator new[](unsigned long) (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18073==    by 0x10CE33: imageBMP::imageBMP(char const*) (imageBMP.cpp:31)
+==18073==    by 0x115847: std::__detail::_MakeUniq<imageBMP>::__single_object std::make_unique<imageBMP, char const*&>(char const*&) (unique_ptr.h:1070)
+==18073==    by 0x10F5F8: Object::Object(char const*, char const*, glm::vec<3, float, (glm::qualifier)0> const&, ObjectType) (object.cpp:12)
+==18073==    by 0x10F91A: Block::Block(glm::vec<3, float, (glm::qualifier)0> const&) (block.cpp:5)
+==18073==    by 0x12A587: void std::_Construct<Block, glm::vec<3, float, (glm::qualifier)0> >(Block*, glm::vec<3, float, (glm::qualifier)0>&&) (stl_construct.h:119)
+==18073==    by 0x1285DD: construct<Block, glm::vec<3, float, (glm::qualifier)0> > (alloc_traits.h:661)
+==18073==    by 0x1285DD: std::_Sp_counted_ptr_inplace<Block, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<glm::vec<3, float, (glm::qualifier)0> >(std::allocator<void>, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:604)
+==18073==    by 0x1266AB: std::__shared_count<(__gnu_cxx::_Lock_policy)2>::__shared_count<Block, std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(Block*&, std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:971)
+==18073==    by 0x122F73: std::__shared_ptr<Block, (__gnu_cxx::_Lock_policy)2>::__shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:1712)
+==18073==    by 0x11F142: std::shared_ptr<Block>::shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:464)
+==18073==    by 0x11801E: std::shared_ptr<std::enable_if<!std::is_array<Block>::value, Block>::type> std::make_shared<Block, glm::vec<3, float, (glm::qualifier)0> >(glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:1010)
+==18073==    by 0x111D7E: main (main.cpp:138)
+==18073== 
+==18073== 522,086 bytes in 1 blocks are definitely lost in loss record 2,664 of 2,668
+==18073==    at 0x48485C3: operator new[](unsigned long) (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18073==    by 0x10CE33: imageBMP::imageBMP(char const*) (imageBMP.cpp:31)
+==18073==    by 0x115847: std::__detail::_MakeUniq<imageBMP>::__single_object std::make_unique<imageBMP, char const*&>(char const*&) (unique_ptr.h:1070)
+==18073==    by 0x10F5F8: Object::Object(char const*, char const*, glm::vec<3, float, (glm::qualifier)0> const&, ObjectType) (object.cpp:12)
+==18073==    by 0x10F91A: Block::Block(glm::vec<3, float, (glm::qualifier)0> const&) (block.cpp:5)
+==18073==    by 0x12A587: void std::_Construct<Block, glm::vec<3, float, (glm::qualifier)0> >(Block*, glm::vec<3, float, (glm::qualifier)0>&&) (stl_construct.h:119)
+==18073==    by 0x1285DD: construct<Block, glm::vec<3, float, (glm::qualifier)0> > (alloc_traits.h:661)
+==18073==    by 0x1285DD: std::_Sp_counted_ptr_inplace<Block, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<glm::vec<3, float, (glm::qualifier)0> >(std::allocator<void>, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:604)
+==18073==    by 0x1266AB: std::__shared_count<(__gnu_cxx::_Lock_policy)2>::__shared_count<Block, std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(Block*&, std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:971)
+==18073==    by 0x122F73: std::__shared_ptr<Block, (__gnu_cxx::_Lock_policy)2>::__shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:1712)
+==18073==    by 0x11F142: std::shared_ptr<Block>::shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:464)
+==18073==    by 0x11801E: std::shared_ptr<std::enable_if<!std::is_array<Block>::value, Block>::type> std::make_shared<Block, glm::vec<3, float, (glm::qualifier)0> >(glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:1010)
+==18073==    by 0x1119FE: main (main.cpp:131)
+==18073== 
+==18073== 522,086 bytes in 1 blocks are definitely lost in loss record 2,665 of 2,668
+==18073==    at 0x48485C3: operator new[](unsigned long) (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18073==    by 0x10CE33: imageBMP::imageBMP(char const*) (imageBMP.cpp:31)
+==18073==    by 0x115847: std::__detail::_MakeUniq<imageBMP>::__single_object std::make_unique<imageBMP, char const*&>(char const*&) (unique_ptr.h:1070)
+==18073==    by 0x10F5F8: Object::Object(char const*, char const*, glm::vec<3, float, (glm::qualifier)0> const&, ObjectType) (object.cpp:12)
+==18073==    by 0x10F91A: Block::Block(glm::vec<3, float, (glm::qualifier)0> const&) (block.cpp:5)
+==18073==    by 0x12A587: void std::_Construct<Block, glm::vec<3, float, (glm::qualifier)0> >(Block*, glm::vec<3, float, (glm::qualifier)0>&&) (stl_construct.h:119)
+==18073==    by 0x1285DD: construct<Block, glm::vec<3, float, (glm::qualifier)0> > (alloc_traits.h:661)
+==18073==    by 0x1285DD: std::_Sp_counted_ptr_inplace<Block, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<glm::vec<3, float, (glm::qualifier)0> >(std::allocator<void>, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:604)
+==18073==    by 0x1266AB: std::__shared_count<(__gnu_cxx::_Lock_policy)2>::__shared_count<Block, std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(Block*&, std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:971)
+==18073==    by 0x122F73: std::__shared_ptr<Block, (__gnu_cxx::_Lock_policy)2>::__shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:1712)
+==18073==    by 0x11F142: std::shared_ptr<Block>::shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:464)
+==18073==    by 0x11801E: std::shared_ptr<std::enable_if<!std::is_array<Block>::value, Block>::type> std::make_shared<Block, glm::vec<3, float, (glm::qualifier)0> >(glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:1010)
+==18073==    by 0x111A7E: main (main.cpp:132)
+==18073== 
+==18073== 522,086 bytes in 1 blocks are definitely lost in loss record 2,666 of 2,668
+==18073==    at 0x48485C3: operator new[](unsigned long) (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18073==    by 0x10CE33: imageBMP::imageBMP(char const*) (imageBMP.cpp:31)
+==18073==    by 0x115847: std::__detail::_MakeUniq<imageBMP>::__single_object std::make_unique<imageBMP, char const*&>(char const*&) (unique_ptr.h:1070)
+==18073==    by 0x10F5F8: Object::Object(char const*, char const*, glm::vec<3, float, (glm::qualifier)0> const&, ObjectType) (object.cpp:12)
+==18073==    by 0x10F91A: Block::Block(glm::vec<3, float, (glm::qualifier)0> const&) (block.cpp:5)
+==18073==    by 0x12A587: void std::_Construct<Block, glm::vec<3, float, (glm::qualifier)0> >(Block*, glm::vec<3, float, (glm::qualifier)0>&&) (stl_construct.h:119)
+==18073==    by 0x1285DD: construct<Block, glm::vec<3, float, (glm::qualifier)0> > (alloc_traits.h:661)
+==18073==    by 0x1285DD: std::_Sp_counted_ptr_inplace<Block, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<glm::vec<3, float, (glm::qualifier)0> >(std::allocator<void>, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:604)
+==18073==    by 0x1266AB: std::__shared_count<(__gnu_cxx::_Lock_policy)2>::__shared_count<Block, std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(Block*&, std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:971)
+==18073==    by 0x122F73: std::__shared_ptr<Block, (__gnu_cxx::_Lock_policy)2>::__shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:1712)
+==18073==    by 0x11F142: std::shared_ptr<Block>::shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:464)
+==18073==    by 0x11801E: std::shared_ptr<std::enable_if<!std::is_array<Block>::value, Block>::type> std::make_shared<Block, glm::vec<3, float, (glm::qualifier)0> >(glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:1010)
+==18073==    by 0x111AFE: main (main.cpp:133)
+==18073== 
+==18073== 522,086 bytes in 1 blocks are definitely lost in loss record 2,667 of 2,668
+==18073==    at 0x48485C3: operator new[](unsigned long) (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18073==    by 0x10CE33: imageBMP::imageBMP(char const*) (imageBMP.cpp:31)
+==18073==    by 0x115847: std::__detail::_MakeUniq<imageBMP>::__single_object std::make_unique<imageBMP, char const*&>(char const*&) (unique_ptr.h:1070)
+==18073==    by 0x10F5F8: Object::Object(char const*, char const*, glm::vec<3, float, (glm::qualifier)0> const&, ObjectType) (object.cpp:12)
+==18073==    by 0x10F91A: Block::Block(glm::vec<3, float, (glm::qualifier)0> const&) (block.cpp:5)
+==18073==    by 0x12A587: void std::_Construct<Block, glm::vec<3, float, (glm::qualifier)0> >(Block*, glm::vec<3, float, (glm::qualifier)0>&&) (stl_construct.h:119)
+==18073==    by 0x1285DD: construct<Block, glm::vec<3, float, (glm::qualifier)0> > (alloc_traits.h:661)
+==18073==    by 0x1285DD: std::_Sp_counted_ptr_inplace<Block, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<glm::vec<3, float, (glm::qualifier)0> >(std::allocator<void>, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:604)
+==18073==    by 0x1266AB: std::__shared_count<(__gnu_cxx::_Lock_policy)2>::__shared_count<Block, std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(Block*&, std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:971)
+==18073==    by 0x122F73: std::__shared_ptr<Block, (__gnu_cxx::_Lock_policy)2>::__shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:1712)
+==18073==    by 0x11F142: std::shared_ptr<Block>::shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:464)
+==18073==    by 0x11801E: std::shared_ptr<std::enable_if<!std::is_array<Block>::value, Block>::type> std::make_shared<Block, glm::vec<3, float, (glm::qualifier)0> >(glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:1010)
+==18073==    by 0x111B7E: main (main.cpp:134)
+==18073== 
+==18073== 522,086 bytes in 1 blocks are definitely lost in loss record 2,668 of 2,668
+==18073==    at 0x48485C3: operator new[](unsigned long) (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==18073==    by 0x10CE33: imageBMP::imageBMP(char const*) (imageBMP.cpp:31)
+==18073==    by 0x115847: std::__detail::_MakeUniq<imageBMP>::__single_object std::make_unique<imageBMP, char const*&>(char const*&) (unique_ptr.h:1070)
+==18073==    by 0x10F5F8: Object::Object(char const*, char const*, glm::vec<3, float, (glm::qualifier)0> const&, ObjectType) (object.cpp:12)
+==18073==    by 0x10F91A: Block::Block(glm::vec<3, float, (glm::qualifier)0> const&) (block.cpp:5)
+==18073==    by 0x12A587: void std::_Construct<Block, glm::vec<3, float, (glm::qualifier)0> >(Block*, glm::vec<3, float, (glm::qualifier)0>&&) (stl_construct.h:119)
+==18073==    by 0x1285DD: construct<Block, glm::vec<3, float, (glm::qualifier)0> > (alloc_traits.h:661)
+==18073==    by 0x1285DD: std::_Sp_counted_ptr_inplace<Block, std::allocator<void>, (__gnu_cxx::_Lock_policy)2>::_Sp_counted_ptr_inplace<glm::vec<3, float, (glm::qualifier)0> >(std::allocator<void>, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:604)
+==18073==    by 0x1266AB: std::__shared_count<(__gnu_cxx::_Lock_policy)2>::__shared_count<Block, std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(Block*&, std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:971)
+==18073==    by 0x122F73: std::__shared_ptr<Block, (__gnu_cxx::_Lock_policy)2>::__shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr_base.h:1712)
+==18073==    by 0x11F142: std::shared_ptr<Block>::shared_ptr<std::allocator<void>, glm::vec<3, float, (glm::qualifier)0> >(std::_Sp_alloc_shared_tag<std::allocator<void> >, glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:464)
+==18073==    by 0x11801E: std::shared_ptr<std::enable_if<!std::is_array<Block>::value, Block>::type> std::make_shared<Block, glm::vec<3, float, (glm::qualifier)0> >(glm::vec<3, float, (glm::qualifier)0>&&) (shared_ptr.h:1010)
+==18073==    by 0x111CFE: main (main.cpp:137)
+==18073== 
+==18073== LEAK SUMMARY:
+==18073==    definitely lost: 2,610,798 bytes in 7 blocks
+==18073==    indirectly lost: 2,520 bytes in 23 blocks
+==18073==      possibly lost: 1,566,258 bytes in 3 blocks
+==18073==    still reachable: 317,357 bytes in 3,269 blocks
+==18073==         suppressed: 0 bytes in 0 blocks
+==18073== Reachable blocks (those to which a pointer was found) are not shown.
+==18073== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==18073== 
+==18073== ERROR SUMMARY: 10 errors from 10 contexts (suppressed: 0 from 0)

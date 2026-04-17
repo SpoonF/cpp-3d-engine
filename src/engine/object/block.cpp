@@ -2,8 +2,12 @@
 #include "memory"
 
 Block::Block(const glm::vec3& position) : 
-    Object("./assets/models/cube.obj", "./assets/textures/ground.bmp", position, ObjectType::BLOCK) { 
-        this->shader = std::make_shared<Shader>("./shaders/block.frag","./shaders/block.vert");
+    Object("./assets/models/cube.obj", "./assets/textures/ground.bmp", position, ObjectType::BLOCK) {
+        printf("Create Block");
+        this->shader = Shader::getInstance(
+            "./shaders/block.vert",
+            "./shaders/block.frag",
+            ObjectType::BLOCK);
     }
 
 std::shared_ptr<Block> Block::create(const glm::vec3& position) {

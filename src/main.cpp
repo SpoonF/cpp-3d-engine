@@ -85,7 +85,9 @@ int main() {
     }
     
     // Make context current
+    
     glfwMakeContextCurrent(window);
+
 
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_key_callback);
@@ -123,10 +125,19 @@ int main() {
     std::shared_ptr<World> world = World::generate(4);
     
     printf("Terrain is load...\n");
-    
-    
 
     scene->setWorld(world);
+
+    world->setObject(std::make_shared<Block>(glm::vec3(2, 12, 4)));
+    world->setObject(std::make_shared<Block>(glm::vec3(4, 12, 4)));
+    world->setObject(std::make_shared<Block>(glm::vec3(6, 12, 4)));
+    world->setObject(std::make_shared<Block>(glm::vec3(8, 12, 4)));
+    world->setObject(std::make_shared<Block>(glm::vec3(10, 12, 4)));
+    world->setObject(std::make_shared<Block>(glm::vec3(12, 12, 4)));
+    world->setObject(std::make_shared<Block>(glm::vec3(14, 12, 4)));
+    world->setObject(std::make_shared<Block>(glm::vec3(16, 12, 4)));
+
+
 
 
 

@@ -1,13 +1,16 @@
 #include "engine/shader.h"
 
-#include "engine/object.h"
-#include "engine/camera.h"
+#include <iostream>
+
 #include "utils/model.h"
 #include "utils/imageBMP.h"
-#include <iostream>
+#include "engine/object.h"
+#include "engine/camera.h"
+#include <cstring>
 
 GLFWwindow* Shader::window = nullptr;
 std::shared_ptr<Camera> Shader::camera = nullptr;
+std::map<int, Shader*> Shader::instances;
 
 char* Shader::readShader(const char* filename) {
     std::ifstream file(filename);
@@ -28,14 +31,30 @@ char* Shader::readShader(const char* filename) {
 }
 
 void Shader::initShaderProgram(const char* vert, const char* frag) {
+    if (glCreateProgram == nullptr) {
+        printf("ОШИБКА: OpenGL функции не загружены! Забудьте вызвать gladLoadGL()\n");
+        return;
+    }
+
+    glfwMakeContextCurrent(window);
     char* vertexShaderSource = readShader(vert);
     char* fragmentShaderSource = readShader(frag);
+
+    if(strlen(vertexShaderSource) == 0) {
+        printf("Ошибка вершинного шейдера: пустой файл шейдера");
+    }
+
+    if(strlen(fragmentShaderSource) == 0) {
+        printf("Ошибка фрагментного шейдера: пустой файл шейдера");
+    }
 
     // Создание шейдеров
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
-    
+
+    delete[] vertexShaderSource;
+
     // Проверка компиляции вершинного шейдера
     int success;
     char infoLog[512];
@@ -47,6 +66,8 @@ void Shader::initShaderProgram(const char* vert, const char* frag) {
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
+
+    delete[] fragmentShaderSource;
     
     // Проверка компиляции фрагментного шейдера
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
@@ -57,8 +78,27 @@ void Shader::initShaderProgram(const char* vert, const char* frag) {
     
     // Создание шейдерной программы
     unsigned int shaderProgram = glCreateProgram();
+
+    if (shaderProgram == 0) {
+        printf("ОШИБКА: glCreateProgram вернул 0! OpenGL контекст не инициализирован\n");
+        printf("Проверьте: glfwMakeContextCurrent и gladLoadGL вызваны ДО этого места\n");
+        return;
+    }
+    
+    printf("Создана шейдерная программа: %u\n", shaderProgram);
+
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
+    // Перед glLinkProgram:
+    printf("Before glLinkProgram - shaderProgram=%u\n", shaderProgram);
+    printf("OpenGL context: %p\n", glfwGetCurrentContext());
+
+    // Проверка ошибок OpenGL перед линковкой
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR) {
+        printf("OpenGL error before linking: 0x%x\n", err);
+    }
+    
     glLinkProgram(shaderProgram);
     
     // Проверка линковки
@@ -75,7 +115,7 @@ void Shader::initShaderProgram(const char* vert, const char* frag) {
     this->selectShader = shaderProgram;
 }
 
-void Shader::drawObjectInstaced(const Model& model, const imageBMP& texture, const ShaderOptions& options) {
+void Shader::drawObjectInstaced(Model* model, imageBMP* texture, const ShaderOptions& options) {
     
     this->draw();
 
@@ -87,7 +127,7 @@ void Shader::drawObjectInstaced(const Model& model, const imageBMP& texture, con
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, model.vertices.size() * sizeof(glm::vec3), &model.vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, model->vertices.size() * sizeof(glm::vec3), &model->vertices[0], GL_STATIC_DRAW);
 
     // Позиции
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -126,7 +166,7 @@ void Shader::drawObjectInstaced(const Model& model, const imageBMP& texture, con
     unsigned int uvBuffer;
     glGenBuffers(1, &uvBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-    glBufferData(GL_ARRAY_BUFFER, model.uvs.size() * sizeof(glm::vec2), &model.uvs[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, model->uvs.size() * sizeof(glm::vec2), &model->uvs[0], GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glEnableVertexAttribArray(1);
@@ -136,12 +176,12 @@ void Shader::drawObjectInstaced(const Model& model, const imageBMP& texture, con
 
     // uint hasTexture = glGetUniformLocation(1, "hasTexture");
 
-    if(texture.data) {
+    if(texture->data) {
         unsigned int textureLoc;
         glGenTextures(1, &textureLoc);
         glBindTexture(GL_TEXTURE_2D, textureLoc);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.width, texture.height, 0, GL_BGR, GL_UNSIGNED_BYTE, texture.data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->width, texture->height, 0, GL_BGR, GL_UNSIGNED_BYTE, texture->data);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -150,11 +190,11 @@ void Shader::drawObjectInstaced(const Model& model, const imageBMP& texture, con
     }
 
     
-    if(model.normals.size()) {
+    if(model->normals.size()) {
         unsigned int normal;
         glGenBuffers(1, &normal);
         glBindBuffer(GL_ARRAY_BUFFER, normal);
-        glBufferData(GL_ARRAY_BUFFER, model.normals.size() * sizeof(glm::vec3), &model.normals[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, model->normals.size() * sizeof(glm::vec3), &model->normals[0], GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         glEnableVertexAttribArray(4);
@@ -166,14 +206,37 @@ void Shader::drawObjectInstaced(const Model& model, const imageBMP& texture, con
     glBindVertexArray(0);
 
     glBindVertexArray(VAO);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, model.vertices.size(), options.positions.size());
+    glDrawArraysInstanced(GL_TRIANGLES, 0, model->vertices.size(), options.positions.size());
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 }
 
+Shader* Shader::getInstance(const char *vert, const char *frag, int id)
+{
+    auto it = instances.find(id);
+    if (it != instances.end() && it->second != nullptr) {
+        return it->second;
+    }
+    
+    Shader* newShader = new Shader(vert, frag);
+    instances[id] = newShader;
+    return newShader;
+    
+}
+
+Shader *Shader::getInstance(int id)
+{
+    auto it = instances.find(id);
+    if (it != instances.end() && it->second != nullptr) {
+        return it->second;
+    }
+    return nullptr;
+}
+
 Shader::Shader(const char *vert, const char *frag)
 {
+    printf("Create shader");
     this->initShaderProgram(vert, frag);
 
     this->lastTime = glfwGetTime();
@@ -235,5 +298,8 @@ void Shader::init(GLFWwindow* _window, std::shared_ptr<Camera> _camera)
 }
 Shader::~Shader()
 {
-    glDeleteProgram(this->selectShader);
+    printf("Deleting shader %d\n", selectShader);
+    if (selectShader != 0) {
+        glDeleteProgram(selectShader);
+    }
 }

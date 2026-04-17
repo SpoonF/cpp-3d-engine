@@ -3,6 +3,8 @@
 #include <fstream>
 
 imageBMP::imageBMP(const char* filename) {
+
+    printf("Create texture");
     FILE* file = fopen(filename, "rb");
     
     if (!file) {

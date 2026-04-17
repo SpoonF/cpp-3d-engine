@@ -1,7 +1,13 @@
 #include "engine/camera.h"
+
 #include <cstdio>
 
+#include "engine/object.h"
+#include "engine/world.h"
+
 Camera::Camera(GLFWwindow* window) {
+
+    printf("Create camera");
     position = {0,0,0};
     this->window = window;
     glfwGetCursorPos(window, &xpos, &ypos);

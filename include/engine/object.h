@@ -6,8 +6,9 @@
 
 #include "utils/imageBMP.h"
 #include "utils/model.h"
-#include <sys/types.h>
-class Shader;
+
+#include "shader.h"
+
 
 class ShaderOptions;
 
@@ -25,29 +26,33 @@ protected:
     glm::vec3 position;
     ObjectType type;
 
-    Model model;
-    imageBMP texture;
+    static std::unique_ptr<Model> model;
+    static std::unique_ptr<imageBMP> texture;
+
 public:
-    std::shared_ptr<Shader> shader;
+    Shader* shader;
 
     Object() = default;
-    Object(const Model& model, const imageBMP& texture, const glm::vec3& position, ObjectType type);
-    Object(const Model& model, const glm::vec3& position, ObjectType type);
     Object(const char* modelpath, const char* texturepath, const glm::vec3& position, ObjectType type);
     Object(const char* modelpath, const glm::vec3& position, ObjectType type);
     bool operator<(const Object& other) const;
     bool operator==(const Object& other) const;
     bool operator!=(const Object& other) const;
 
-    void render(const ShaderOptions& options) const;
+    int getId();
+
+    static Model* getModel();
+    static imageBMP* getTexture();
+
+    // static void render(const ShaderOptions& options);
 
     glm::vec3 getPosition() const;
     void setPosition(const glm::vec3& position);
     void move(const glm::vec3& position);
-    void setShader(std::shared_ptr<Shader> shader);
+    ObjectType getType() const;
 
     ~Object() {
-        printf("Object %i destoyed", this->id);
+        // printf("Object %i destoyed", this->id);
     }
 };
 

@@ -11,17 +11,18 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <map>
-#include <set>
 #include <queue>
 #include <fstream>
 #include <functional>
 #include <memory>
 
-// #include "object.h"
-#include "../utils/model.h"
-#include "../utils/imageBMP.h"
-#include "camera.h"
 #include "frustum.h"
+
+class Camera;
+class Model;
+class imageBMP;
+
+
 
 struct ShaderOptions {
     std::vector<glm::vec3> positions;
@@ -40,13 +41,17 @@ class Shader {
 
     char* readShader(const char* filename);
 
+// protected:
+
 public:
+    static std::map<int, Shader*> instances;
     Shader() = default;
 
     Frustum frustum;
     void initShaderProgram(const char* vert, const char* frag);
-    void drawObjectInstaced(const Model& model, const imageBMP& texture, const ShaderOptions& options);
-    static std::unique_ptr<Shader> create(const char* vert, const char* frag);
+    void drawObjectInstaced(Model* model, imageBMP* texture, const ShaderOptions& options);
+    static Shader* getInstance(const char* vert, const char* frag, int id);
+    static Shader* getInstance(int id);
 
     Shader(const char* vert, const char* frag);
     void draw();

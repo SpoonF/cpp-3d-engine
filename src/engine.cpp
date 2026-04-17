@@ -28,16 +28,15 @@
 #include "utils/imageBMP.cpp"
 #include "utils/model.cpp"
 
+#include "engine/camera.cpp"
+#include "engine/shader.cpp"
 #include "engine/object.cpp"
 #include "engine/object/block.cpp"
-#include "engine/camera.cpp"
+#include "engine/world.cpp"
+#include "engine/frustum.cpp"
 #include "engine/collision.cpp"
 #include "engine/collision_box.cpp"
 #include "engine/collision_sphere.cpp"
-#include "engine/entity.cpp"
-#include "engine/shader.cpp"
-#include "engine/world.cpp"
-#include "engine/frustum.cpp"
 #include "engine/scene.cpp"
 
 

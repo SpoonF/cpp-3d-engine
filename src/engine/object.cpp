@@ -3,34 +3,26 @@
 #include "utils/imageBMP.h"
 #include "utils/model.h"
 
+std::unique_ptr<Model> Object::model = nullptr;
+std::unique_ptr<imageBMP> Object::texture = nullptr;
 
 
-Object::Object(const Model& model,const imageBMP& texture, const glm::vec3& position, ObjectType type) {
-    this->model = model;
-    this->texture = texture;
-    this->position = position;
-    this->type = type;
-    count++;
-    id = count;
-}
-Object::Object(const Model& model, const glm::vec3& position, ObjectType type) {
-    this->model = model;
-    this->position = position;
-    this->type = type;
-    count++;
-    id = count;
-}
 Object::Object(const char* modelpath, const char* texturepath, const glm::vec3& position, ObjectType type) {
-    this->model = Model(modelpath);
-    this->texture = imageBMP(texturepath);
+
+    printf("Create object");
+    this->model = std::make_unique<Model>(modelpath);
+    this->texture = std::make_unique<imageBMP>(texturepath);
     this->position = position;
     this->type = type;
+
     count++;
     id = count;
 }
 Object::Object(const char* modelpath, const glm::vec3& position, ObjectType type) {
-    this->model = Model(modelpath);
-    this->shader = std::make_shared<Shader>("./shaders/block.vert", "./shaders/no-texture.frag");
+        printf("Create object");
+    this->model = std::make_unique<Model>(modelpath);
+    this->position = position;
+    this->type = type;
 
     count++;
     id = count;
@@ -45,10 +37,19 @@ bool Object::operator!=(const Object& other) const {
     return id != other.id;
 }
 
-void Object::render(const ShaderOptions& options) const {
+int Object::getId()
+{
+    return this->id;
+}
 
-    this->shader->drawObjectInstaced(this->model, this->texture, options);
-};
+Model *Object::getModel()
+{
+    return model.get();
+}
+imageBMP* Object::getTexture()
+{
+    return texture.get();
+}
 
 glm::vec3 Object::getPosition() const {
     return this->position;
@@ -62,7 +63,7 @@ void Object::move(const glm::vec3 &position)
     this->position += position;
 }
 
-void Object::setShader(std::shared_ptr<Shader> shader)
+ObjectType Object::getType() const
 {
-    this->shader = shader;
+    return this->type;
 }
