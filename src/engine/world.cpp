@@ -26,7 +26,7 @@ std::shared_ptr<World> World::generate(const unsigned int size)
 
     // Generate a 16x16x16 grid of 3D noise
     std::vector<float> noise( world_width * world_width  );
-    fractal->GenUniformGrid2D( noise.data(), 0, 0, world_width, world_width, 1, 1, 1337 );
+    fractal->GenUniformGrid2D( noise.data(), 0, 0, world_width, world_width, 1, 1, glfwGetTime() );
 
     std::vector<std::shared_ptr<Chunk>> chunks; 
 
@@ -41,18 +41,20 @@ std::shared_ptr<World> World::generate(const unsigned int size)
     }
 
     std::shared_ptr<World> world = std::make_shared<World>(chunks);
+    auto block = new Block({12,22,32});
 
-    // for (int x = 0; x < world_width; x++)
-    // {
-    //     for (int z = 0; z < world_width; z++)
-    //     {
-    //         int height = (int)(fractal->GenSingle2D(x, z, 53432) * 4) + 2;
-    //         for (int y = 0; y < height; y++)
-    //         {
-    //             world->setObject(std::make_shared<Block>(glm::vec3(x * 2, std::max(y * 2 , 0), z * 2)));
-    //         }
-    //     }
-    // }
+    for (int x = 0; x < world_width; x++)
+    {
+        for (int z = 0; z < world_width; z++)
+        {
+            int height = (int)(fractal->GenSingle2D(x, z, 53432) * 6) + 6;
+            for (int y = 0; y < height; y++)
+            {
+                // world->setObject(std::make_shared<Block>(glm::vec3(x * 2, std::max(y * 2 , 0), z * 2)));
+                world->setObject(ObjectType::BLOCK, glm::vec3(x * 2, std::max(y * 2 , 0), z * 2));
+            }
+        }
+    }
 
     return world;
 }
@@ -68,6 +70,16 @@ void World::setObject(std::shared_ptr<Object> object)
     {
         glm::vec3 localPos = (object->getPosition() - chunk->position) / glm::vec3(2,1,2);
         chunk->setLocal(localPos, object);
+
+    }
+}
+
+void World::setObject(ObjectType type, glm::vec3 position)
+{
+    for (auto &chunk : this->chunks)
+    {
+        glm::vec3 localPos = (position - chunk->position) / glm::vec3(2,1,2);
+        chunk->setLocal(localPos, {type, position});
 
     }
 }

@@ -27,6 +27,8 @@ Object::Object(const char* modelpath, const glm::vec3& position, ObjectType type
     count++;
     id = count;
 }
+
+
 bool Object::operator<(const Object& other) const {
     return id < other.id;
 }

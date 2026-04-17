@@ -53,6 +53,21 @@ public:
         }
     }
 
+    void setLocal(const glm::vec3& position, std::pair<ObjectType, glm::vec3> object) {
+        if(position.x >= 0 && position.x < CHUNK_WIDTH && position.y >= 0 && position.y < CHUNK_HEIGHT && position.z >= 0 && position.z < CHUNK_WIDTH) {
+
+            // loc_objects[position.x + CHUNK_WIDTH * (position.y + CHUNK_HEIGHT * position.z)] = object->getId();
+            // objects.insert({object->getId(), object});
+
+            if(positions.count(std::get<0>(object))) {
+                positions[std::get<0>(object)].push_back(std::get<1>(object));
+            } else {
+                positions[std::get<0>(object)] = {std::get<1>(object)};
+            }
+            
+        }
+    }
+
     // int getLocal(const glm::vec3& position) const {
     //     if(position.x < 0 || position.x >= CHUNK_WIDTH || 
     //         position.y < 0 || position.y >= CHUNK_HEIGHT || 
@@ -104,6 +119,7 @@ public:
 
     glm::vec3 getWorldCenter();
     void setObject(std::shared_ptr<Object> object);
+    void setObject(ObjectType type, glm::vec3 position);
 
     std::vector<std::shared_ptr<Chunk>> getChunks();
 

@@ -13,6 +13,7 @@
 class ShaderOptions;
 
 enum ObjectType {
+    OBJECT,
     BLOCK,
     LIGHT,
     PLAYER,
@@ -24,13 +25,8 @@ protected:
     uint id;
     static inline uint count = 0;
     glm::vec3 position;
-    ObjectType type;
-
-    static std::unique_ptr<Model> model;
-    static std::unique_ptr<imageBMP> texture;
-
+    static ObjectType type;
 public:
-    Shader* shader;
 
     Object() = default;
     Object(const char* modelpath, const char* texturepath, const glm::vec3& position, ObjectType type);
@@ -41,9 +37,6 @@ public:
 
     int getId();
 
-    static Model* getModel();
-    static imageBMP* getTexture();
-
     // static void render(const ShaderOptions& options);
 
     glm::vec3 getPosition() const;
@@ -53,6 +46,10 @@ public:
 
     ~Object() {
         // printf("Object %i destoyed", this->id);
+    }
+
+    static void init(const char* modelpath, const char* texturepath, const char* vert, const char* frag) {
+        Shader::getInstance(vert, frag, type);
     }
 };
 

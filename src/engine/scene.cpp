@@ -122,7 +122,7 @@ void Scene::updateWorld()
         if (type == ObjectType::BLOCK)
         {
             auto shader = Shader::getInstance(ObjectType::BLOCK);
-            shader->set("lightPos", lightPos);
+            // shader->set("lightPos", lightPos);
             shader->drawObjectInstaced(Block::getModel(), Block::getTexture(), options);
         }
         
