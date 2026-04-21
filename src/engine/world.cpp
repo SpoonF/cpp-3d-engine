@@ -41,16 +41,15 @@ std::shared_ptr<World> World::generate(const unsigned int size)
     }
 
     std::shared_ptr<World> world = std::make_shared<World>(chunks);
-    auto block = new Block({12,22,32});
+    world->setSize(size);
 
     for (int x = 0; x < world_width; x++)
     {
         for (int z = 0; z < world_width; z++)
         {
-            int height = (int)(fractal->GenSingle2D(x, z, 53432) * 6) + 6;
+            int height = (int)(fractal->GenSingle2D(x, z, 53432) * 6) + 32;
             for (int y = 0; y < height; y++)
             {
-                // world->setObject(std::make_shared<Block>(glm::vec3(x * 2, std::max(y * 2 , 0), z * 2)));
                 world->setObject(ObjectType::BLOCK, glm::vec3(x * 2, std::max(y * 2 , 0), z * 2));
             }
         }
@@ -62,19 +61,10 @@ std::shared_ptr<World> World::generate(const unsigned int size)
 
 glm::vec3 World::getWorldCenter()
 {
-    return glm::vec3();
-}
-void World::setObject(std::shared_ptr<Object> object)
-{
-    for (auto &chunk : this->chunks)
-    {
-        glm::vec3 localPos = (object->getPosition() - chunk->position) / glm::vec3(2,1,2);
-        chunk->setLocal(localPos, object);
-
-    }
+    return glm::vec3(this->size * CHUNK_WIDTH, 12, this->size * CHUNK_WIDTH);
 }
 
-void World::setObject(ObjectType type, glm::vec3 position)
+void World::setObject(ObjectType type, const glm::vec3& position)
 {
     for (auto &chunk : this->chunks)
     {
@@ -83,12 +73,19 @@ void World::setObject(ObjectType type, glm::vec3 position)
 
     }
 }
+void World::addLight(Object *lightObject)
+{
+    lights.push_back(lightObject);
+}
 std::vector<std::shared_ptr<Chunk>> World::getChunks()
 {
     return this->chunks;
 }
 
-
+void World::setSize(const unsigned int size)
+{
+    this->size = size;
+}
 
 // std::vector<Quad> Chunk::greedy_mesh_face(int direction) const {
 //     std::vector<Quad> quads;

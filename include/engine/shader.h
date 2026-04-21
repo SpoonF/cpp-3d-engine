@@ -56,10 +56,10 @@ public:
     
     void updateDeltaTime();
     glm::mat4 getModel();
-    void set(const char* name, glm::vec3& data);
-    void set(const char* name, int& data);
-    void set(char* name, glm::mat4& data);
-    void set(char* name, glm::mat3& data);
+    void set(const char* name, const glm::vec3& data);
+    void set(const char* name, const int& data);
+    void set(const char* name, const glm::mat4& data);
+    void set(const char* name, const glm::mat3& data);
     
     // void addDraw(const Object3D& object);
     // void addDraw(const Object3D& object, const std::vector<glm::vec3>& instances);

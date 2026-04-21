@@ -2,22 +2,26 @@
 #include "engine/shader.h"
 #include "utils/imageBMP.h"
 #include "utils/model.h"
+#include <iostream>
 
-Object::Object(const glm::vec3& position, ObjectType type) {
-    this->position = position;
+
+Object::Object(const glm::vec3& position, ObjectType type): Positionable(position) {
     this->type = type;
 
-    count++;
-    id = count;
-}
+    this->options = std::make_unique<Options>();
 
+    count++;
+    this->id = count;
+}
 
 bool Object::operator<(const Object& other) const {
     return id < other.id;
 }
+
 bool Object::operator==(const Object& other) const {
     return id == other.id;
 }
+
 bool Object::operator!=(const Object& other) const {
     return id != other.id;
 }
@@ -27,19 +31,15 @@ int Object::getId()
     return this->id;
 }
 
-glm::vec3 Object::getPosition() const {
-    return this->position;
-};
-void Object::setPosition(const glm::vec3& position) {
-    this->position = position;
-};
-
-void Object::move(const glm::vec3 &position)
+Options *Object::getOptions()
 {
-    this->position += position;
+    return this->options.get();
 }
 
-ObjectType Object::getType() const
-{
-    return this->type;
-}
+
+template <ObjectType type>
+void Object::init(const char* modelpath, const char* texturepath, const char* vert, const char* frag) {
+    Model::getInstance(modelpath, type);
+    imageBMP::getInstance(texturepath, type);
+    Shader::getInstance(vert, frag, type);
+};

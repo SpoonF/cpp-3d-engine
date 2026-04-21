@@ -1,17 +1,7 @@
 #include "engine/object/block.h"
 #include "memory"
+#include <iostream>
 
 Block::Block(const glm::vec3& position) : 
-    Object("./assets/models/cube.obj", "./assets/textures/ground.bmp", position, ObjectType::BLOCK) {
-        printf("Create Block");
-        this->shader = Shader::getInstance(
-            "./shaders/block.vert",
-            "./shaders/block.frag",
-            ObjectType::BLOCK);
-    }
+    Positionable(position), Object(position, ObjectType::BLOCK), CollisionBox(position, glm::vec3(2.f)) { }
 
-std::shared_ptr<Block> Block::create(const glm::vec3& position) {
-    std::shared_ptr<Block> block = std::make_shared<Block>(position);
-    // instances[block->id] = block;
-    return block;
-}

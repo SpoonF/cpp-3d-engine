@@ -215,7 +215,6 @@ void Shader::drawObjectInstaced(Model* model, imageBMP* texture, const ShaderOpt
 
 Shader::Shader(const char *vert, const char *frag)
 {
-    printf("Create shader");
     this->initShaderProgram(vert, frag);
 
     this->lastTime = glfwGetTime();
@@ -224,12 +223,13 @@ Shader::Shader(const char *vert, const char *frag)
 void Shader::draw() {
 
     // this->updateDeltaTime();
-
+    // std::cout << this->instances.size()<< std::endl;
     glm::mat4 Projection = Shader::camera->getProjection();
     glm::mat4 View = Shader::camera->getView();
     glm::mat4 Model = getModel();
     glm::mat3 ModelNormal = glm::mat3(glm::transpose(glm::inverse(Model)));
     glm::vec3 viewPos = Shader::camera->getPosition();
+    
 
     set("Projection", Projection);
     set("View", View);
@@ -248,24 +248,24 @@ void Shader::updateDeltaTime() {
 glm::mat4 Shader::getModel() {
     return glm::mat4(1.0f);
 }
-void Shader::set(const char* name, glm::vec3& data) {
+void Shader::set(const char* name, const glm::vec3& data) {
     GLuint dataId = glGetUniformLocation(selectShader, name);
     glUniform3f(dataId, data.x, data.y, data.z);
 }
-void Shader::set(const char* name, int& data) {
+void Shader::set(const char* name, const int& data) {
     GLuint dataId = glGetUniformLocation(selectShader, name);
 
     glUniform1i(dataId, data);
 }
-void Shader::set(char* name, glm::mat4& data) {
+void Shader::set(const char* name, const glm::mat4& data) {
     GLuint dataId = glGetUniformLocation(selectShader, name);
 
     glUniformMatrix4fv(dataId, 1, GL_FALSE, &data[0][0]);
 }
-void Shader::set(char* name, glm::mat3& data) {
+void Shader::set(const char* name, const glm::mat3& data) {
     GLuint dataId = glGetUniformLocation(selectShader, name);
 
-    glUniformMatrix4fv(dataId, 1, GL_FALSE, &data[0][0]);
+    glUniformMatrix3fv(dataId, 1, GL_FALSE, &data[0][0]);
 }
 void Shader::init(GLFWwindow* _window, std::shared_ptr<Camera> _camera)
 {
@@ -296,7 +296,7 @@ Shader* Shader::getInstance(const char *vert, const char *frag, int id) {
     
 }
 
-Shader *Shader::getInstance(int id) {
+Shader* Shader::getInstance(int id) {
     auto it = instances.find(id);
     if (it != instances.end() && it->second != nullptr) {
         return it->second;

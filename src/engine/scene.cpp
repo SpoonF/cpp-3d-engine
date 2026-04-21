@@ -85,20 +85,23 @@ void Scene::updateWorld()
     std::unordered_map<ObjectType, ShaderOptions> map;
     glm::vec3 lightPos;
 
-    for (auto &chunk : this->world->getChunks())
+    std::vector<std::shared_ptr<Chunk>> chunks = this->world->getChunks();
+    std::vector<Object*> lights = this->world->getLights();
+
+    for (auto &chunk : chunks)
     {
 
-        // if(!camera->isWithinDistance(*chunk, RENDER_DISTANCE)) {
-        //     continue;
-        // }
+        if(!camera->isWithinDistance(*chunk, RENDER_DISTANCE)) {
+            continue;
+        }
 
-        // glm::vec3 min = chunk->position;
+        glm::vec3 min = chunk->position;
 
-        // glm::vec3 max(min.x + CHUNK_WIDTH * 2, CHUNK_HEIGHT, min.z + CHUNK_WIDTH * 2);
+        glm::vec3 max(min.x + CHUNK_WIDTH * 2, CHUNK_HEIGHT, min.z + CHUNK_WIDTH * 2);
 
-        // if(!this->frustum.isAABBVisible(min, max)) {
-        //     continue;
-        // }
+        if(!this->frustum.isAABBVisible(min, max)) {
+            continue;
+        }
 
         for (auto &[key, positions] : chunk->getPositions())
         {
@@ -122,8 +125,9 @@ void Scene::updateWorld()
         if (type == ObjectType::BLOCK)
         {
             auto shader = Shader::getInstance(ObjectType::BLOCK);
-            // shader->set("lightPos", lightPos);
-            shader->drawObjectInstaced(Block::getModel(), Block::getTexture(), options);
+            auto lightPos = lights[0]->getPosition();
+            shader->set("lightPos", lightPos);
+            shader->drawObjectInstaced(Model::getInstance(ObjectType::BLOCK), imageBMP::getInstance(ObjectType::BLOCK), options);
         }
         
 

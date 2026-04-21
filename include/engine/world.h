@@ -31,28 +31,6 @@ private:
 public:
     glm::vec3 position;
 
-    Chunk() {
-        // loc_objects.resize(CHUNK_WIDTH * CHUNK_HEIGHT * CHUNK_WIDTH, 0);
-
-        printf("Create chunk");
-    }
-
-    void setLocal(const glm::vec3& position, std::shared_ptr<Object> object) {
-        if(position.x >= 0 && position.x < CHUNK_WIDTH && position.y >= 0 && position.y < CHUNK_HEIGHT && position.z >= 0 && position.z < CHUNK_WIDTH) {
-
-            // loc_objects[position.x + CHUNK_WIDTH * (position.y + CHUNK_HEIGHT * position.z)] = object->getId();
-            // objects.insert({object->getId(), object});
-
-            if(positions.count(object->getType())) {
-                positions[object->getType()].push_back(object->getPosition());
-            } else {
-                positions[object->getType()] =  {object->getPosition()};
-            }
-            object.reset();
-            
-        }
-    }
-
     void setLocal(const glm::vec3& position, std::pair<ObjectType, glm::vec3> object) {
         if(position.x >= 0 && position.x < CHUNK_WIDTH && position.y >= 0 && position.y < CHUNK_HEIGHT && position.z >= 0 && position.z < CHUNK_WIDTH) {
 
@@ -68,59 +46,46 @@ public:
         }
     }
 
-    // int getLocal(const glm::vec3& position) const {
-    //     if(position.x < 0 || position.x >= CHUNK_WIDTH || 
-    //         position.y < 0 || position.y >= CHUNK_HEIGHT || 
-    //         position.z < 0 || position.z >= CHUNK_WIDTH) {
-            
-    //     }
-    //     return loc_objects[position.x + CHUNK_WIDTH * (position.y + CHUNK_HEIGHT * position.z)];
-    // }
-
-    // int getLocal(int x, int y, int z) const {
-    //     if(x < 0 || x >= CHUNK_WIDTH || 
-    //         y < 0 || y >= CHUNK_HEIGHT || 
-    //         z < 0 || z >= CHUNK_WIDTH) {
-    //     }
-    //     return loc_objects[x + CHUNK_WIDTH * (y + CHUNK_HEIGHT * z)];
-    // }
-
-    // int getGlobal(const glm::vec3& position) const {
-    //     return this->getLocal(position - this->position);
-    // }
-
-    // std::unordered_map<int, std::shared_ptr<Object>> getObjects() const {
-    //     return this->objects;
-    // };
     std::unordered_map<ObjectType, std::vector<glm::vec3>> getPositions() const {
         return this->positions;
     };
-
-    void addObject(std::shared_ptr<Object> object) {
-        if(positions.count(object->getType())) {
-            positions[object->getType()].push_back(object->getPosition());
-        } else {
-            positions[object->getType()] =  {object->getPosition()};
-        }
-    }
-
-    // std::vector<Quad> greedy_mesh_face(int direction) const;
-    ~Chunk() {
-        printf("Chunk is dead");
-    }
 };
 
 class World {
     std::vector<std::shared_ptr<Chunk>> chunks;
+    std::vector<Object*> lights;
+    unsigned int size;
 public:
     World(std::vector<std::shared_ptr<Chunk>> chunks);
     static std::shared_ptr<World> generate(const unsigned int size);
 
 
     glm::vec3 getWorldCenter();
-    void setObject(std::shared_ptr<Object> object);
-    void setObject(ObjectType type, glm::vec3 position);
+    void setObject(ObjectType type, const glm::vec3& position);
+    void addLight(Object* lightObject);
+    std::vector<Object*> getLights() {
+        return lights;
+    }
+
+    Chunk* getChunk(const glm::vec3& position) {
+        for (auto &chunk : this->chunks)
+        {
+            glm::vec3 locPos = position - chunk->position;
+            if(locPos.x <= CHUNK_WIDTH * 2 && 
+                locPos.x >= 0 &&
+                locPos.z <= CHUNK_WIDTH * 2 &&
+                locPos.z >= 0) {
+                return chunk.get();
+            }
+        }
+
+        return nullptr;
+    }
+
 
     std::vector<std::shared_ptr<Chunk>> getChunks();
+
+protected:
+    void setSize(const unsigned int size);
 
 };

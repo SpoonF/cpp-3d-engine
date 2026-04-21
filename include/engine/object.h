@@ -6,11 +6,18 @@
 
 #include "utils/imageBMP.h"
 #include "utils/model.h"
+#include "traits/positionable.h"
 
 #include "shader.h"
 
 
+
+
 class ShaderOptions;
+
+struct Options {
+    bool isLighting; 
+};
 
 enum ObjectType {
     OBJECT,
@@ -20,12 +27,13 @@ enum ObjectType {
     SLAB,
 };
 
-class Object {
+
+class Object: virtual public Positionable {
 protected:
     uint id;
     static inline uint count = 0;
-    glm::vec3 position;
-    static ObjectType type;
+    ObjectType type;
+    
 public:
 
     Object() = default;
@@ -34,24 +42,19 @@ public:
     bool operator==(const Object& other) const;
     bool operator!=(const Object& other) const;
 
+    std::unique_ptr<Options> options;
+    Options* getOptions();
+
     int getId();
 
     // static void render(const ShaderOptions& options);
-
-    glm::vec3 getPosition() const;
-    void setPosition(const glm::vec3& position);
-    void move(const glm::vec3& position);
-    ObjectType getType() const;
 
     ~Object() {
         // printf("Object %i destoyed", this->id);
     }
 
-    static void init(const char* modelpath, const char* texturepath, const char* vert, const char* frag) {
-        Model::getInstance(modelpath, type);
-        imageBMP::getInstance(texturepath, type);
-        Shader::getInstance(vert, frag, type);
-    }
+    template <ObjectType type>
+    static void init(const char* modelpath, const char* texturepath, const char* vert, const char* frag);
 };
 
 // class Entity: public EntityOptions {

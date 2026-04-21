@@ -28,6 +28,7 @@
 #include "utils/imageBMP.cpp"
 #include "utils/model.cpp"
 
+#include "engine/traits/positionable.cpp"
 #include "engine/camera.cpp"
 #include "engine/shader.cpp"
 #include "engine/object.cpp"
@@ -38,6 +39,8 @@
 #include "engine/collision_box.cpp"
 #include "engine/collision_sphere.cpp"
 #include "engine/scene.cpp"
+#include "engine/player.cpp"
+#include "engine/gravity.cpp"
 
 
 

@@ -1,10 +1,9 @@
 #pragma once
 
 #include "../object.h"
+#include "../collision_box.h"
 
-class Block: virtual public Object {
+class Block: public Object, public CollisionBox {
 public:
     Block(const glm::vec3& position);
-    static std::shared_ptr<Shader> sharedShader;
-    static std::shared_ptr<Block> create(const glm::vec3& position);
 };
