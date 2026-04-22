@@ -50,7 +50,8 @@ std::shared_ptr<World> World::generate(const unsigned int size)
             int height = (int)(fractal->GenSingle2D(x, z, 53432) * 6) + 32;
             for (int y = 0; y < height; y++)
             {
-                world->setObject(ObjectType::BLOCK, glm::vec3(x * 2, std::max(y * 2 , 0), z * 2));
+                // world->setObject(ObjectType::BLOCK, glm::vec3(x * 2, std::max(y * 2 , 0), z * 2));
+                world->setObject(new Block(glm::vec3(x * 2, std::max(y * 2 , 0), z * 2)));
             }
         }
     }
@@ -61,7 +62,7 @@ std::shared_ptr<World> World::generate(const unsigned int size)
 
 glm::vec3 World::getWorldCenter()
 {
-    return glm::vec3(this->size * CHUNK_WIDTH, 12, this->size * CHUNK_WIDTH);
+    return glm::vec3(this->size * CHUNK_WIDTH, 120, this->size * CHUNK_WIDTH);
 }
 
 void World::setObject(ObjectType type, const glm::vec3& position)
@@ -73,6 +74,16 @@ void World::setObject(ObjectType type, const glm::vec3& position)
 
     }
 }
+void World::setObject(Block* object)
+{
+    for (auto &chunk : this->chunks)
+    {
+        glm::vec3 localPos = (object->getPosition() - chunk->position) / glm::vec3(2,1,2);
+        chunk->setLocal(localPos, object);
+
+    }
+}
+
 void World::addLight(Object *lightObject)
 {
     lights.push_back(lightObject);

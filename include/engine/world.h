@@ -5,9 +5,9 @@
 #include <unordered_set>
 #include <map>
 
-// #include "engine/object.h"
+#include "engine/object/block.h"
 
-class Object;
+// class Block;
 
 
 const unsigned int CHUNK_WIDTH = 16; 
@@ -28,6 +28,7 @@ private:
     // std::vector<int> loc_objects;
     // std::unordered_map<int, std::shared_ptr<Object>> objects;
     std::unordered_map<ObjectType, std::vector<glm::vec3>> positions;
+    std::vector<Block*> blocks;
 public:
     glm::vec3 position;
 
@@ -45,10 +46,34 @@ public:
             
         }
     }
+    void setLocal(const glm::vec3& position, Block *block) {
+        if(position.x >= 0 && position.x < CHUNK_WIDTH && position.y >= 0 && position.y < CHUNK_HEIGHT && position.z >= 0 && position.z < CHUNK_WIDTH) {
+
+            this->setObject(block);
+            if(positions.count(block->getType())) {
+                positions[block->getType()].push_back(block->getPosition());
+            } else {
+                positions[block->getType()] = {block->getPosition()};
+            }
+            
+        }
+    }
 
     std::unordered_map<ObjectType, std::vector<glm::vec3>> getPositions() const {
         return this->positions;
     };
+
+    void setObject(Block *object) {
+        this->blocks.push_back(object);
+    };
+    std::vector<Block*> getBlocks() {
+        return this->blocks;
+    }
+    void deletBlock(Block *object) {
+        std::erase(this->positions[object->getType()], object->getPosition());
+        std::erase(this->blocks, object);
+        delete object;
+    }
 };
 
 class World {
@@ -62,6 +87,7 @@ public:
 
     glm::vec3 getWorldCenter();
     void setObject(ObjectType type, const glm::vec3& position);
+    void setObject(Block* object);
     void addLight(Object* lightObject);
     std::vector<Object*> getLights() {
         return lights;
@@ -80,6 +106,28 @@ public:
         }
 
         return nullptr;
+    }
+
+    Block* getBlock(const glm::vec3& position) {
+        Chunk* chunk = this->getChunk(position);
+        for (auto block : chunk->getBlocks())
+        {
+            if(block->check(position)) {
+                return block;
+            }
+        }
+
+        return nullptr;
+    }
+
+    void deleteBlock(Block* object) {
+        Chunk* chunk = this->getChunk(object->getPosition());
+        for (auto block : chunk->getBlocks())
+        {
+            if(block == object) {
+                chunk->deletBlock(block);
+            }
+        }
     }
 
 

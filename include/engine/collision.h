@@ -18,6 +18,8 @@ public:
 class Collision: virtual public Positionable {
 public:
     Collision(const glm::vec3& position);
+
+    bool isWithinDistance(const glm::vec3& pos, float distance) const;
 };
 
 

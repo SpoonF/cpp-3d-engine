@@ -122,7 +122,7 @@ int main() {
 
     printf("Loading terrain...\n");
 
-    std::shared_ptr<World> world = World::generate(16);
+    std::shared_ptr<World> world = World::generate(8);
     
     printf("Terrain is load...\n");
 
@@ -139,8 +139,12 @@ int main() {
         lightObj->setPosition(glm::vec3(std::sin(deltaTime) * 100000, std::cos(deltaTime) * 100, std::sin(deltaTime) * 100000));
     });
 
+    // camera->setViewCallback([&camera](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
 
-    camera->setViewCallback([&player, &scene, &world](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
+    // });
+
+
+    camera->setViewCallback([&player, &scene, &world, &camera](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
         glm::vec3 pos = player->getPosition();
         glm::vec3 oldPos = player->getPosition();
 
@@ -152,10 +156,10 @@ int main() {
 
 
         if (keys[GLFW_KEY_W]) {
-            pos += dir * deltaTime * 32.0f;
+            pos += dir * deltaTime * 12.0f;
         }
         if (keys[GLFW_KEY_S]) {
-            pos -= dir * deltaTime * 16.0f;
+            pos -= dir * deltaTime * 12.0f;
         }
 
         if (keys[GLFW_KEY_D]) {
@@ -170,6 +174,20 @@ int main() {
         if (keys[GLFW_KEY_LEFT_SHIFT]) {
             pos -= upDir * deltaTime  * 4.0f;
         }
+        if (keys[GLFW_KEY_LEFT_SHIFT]) {
+            pos -= upDir * deltaTime  * 4.0f;
+        }
+
+        if (keys[GLFW_KEY_L]) {
+            pos = world->getWorldCenter();
+        }
+        if(mouse_keys[GLFW_MOUSE_BUTTON_1]) {
+            if(player->getSelectedObject() != nullptr) {
+                world->deleteBlock(player->getSelectedObject());
+            }
+        }
+
+
 
         
         player->setPosition(pos);
@@ -177,53 +195,94 @@ int main() {
         if(pos.y > 0 && pos.y < 256 * 2) {
             
             if(Chunk* chunk = world->getChunk(pos)) {
-                // std::cout << chunk << std::endl;
-                double tmpPos = 0.0;
+                double tmpPosY = 0.0;
+                int colliseCounter = 0;
+                int isSelectNew = false;
 
-                Block* block = new Block(glm::vec3(0.f));
+
+                // Block block(glm::vec3(0));
+                glm::vec3 playerSize = player->getSize();
+                glm::vec3 camPos = camera->getPosition();
+
                 CollisionInfo info;
-                bool isColliseY = false;
-                bool isColliseX = false;
-                bool isColliseZ = false;
-                for (auto &[type, positions] : chunk->getPositions())
-                {
-                    if(!isColliseZ || !isColliseY || !isColliseX) {
-                        for (auto &blockPos : positions)
-                        {
-                            block->setPosition(blockPos);
-                            if(player->check(block, info)) {
-                                if(info.direction.y != 0) {
-                                    isColliseY = true;
-                                    tmpPos = blockPos.y - info.direction.y;
-                                }
-                                if(info.direction.x != 0) {
-                                    isColliseX = true;
-                                    std::cout << info.direction.x << "|" << info.direction.y << "|" << info.direction.z << std::endl;
-                                }
-                                if(info.direction.x != 0) {
-                                    isColliseZ = true;
-                                    std::cout << info.direction.x << "|" << info.direction.y << "|" << info.direction.z << std::endl;
-                                }
-                            }
+
+                for (auto block : chunk->getBlocks()) {
+                    auto blockPos = block->getPosition();
+                    auto blockSize = block->getSize();
+                                                
+                    for (float i = 0.f; i < 8.f; i += 0.1) {
+                        glm::vec3 point = camPos + direction;
+                        if(block->check(point)) {
+                            player->setSelectedObject(block);
+                            isSelectNew = true;
+                            break;
                         }
                     }
+
+                    if(!isSelectNew) {
+                        player->removeSelectedObject();
+                        isSelectNew = false;
+                    }
+
+                    if(!player->isWithinDistance(blockPos, 2.f)) {
+                        continue;
+                    }
+                    if(player->check(block, info)) {
+                        if(info.direction.y < 0) {
+                            tmpPosY = blockPos.y - info.direction.y;
+                            // pos.y = blockSize.y + blockPos.y;
+
+                            colliseCounter++;
+                            continue;
+                        }
+
+                        if(info.direction.y > 0) {
+                            pos.y = blockPos.y - playerSize.y;
+
+                            colliseCounter++;
+                            continue;
+                        }   
+
+                        if(info.direction.x < 0) {
+                            pos.x = blockSize.x + blockPos.x;
+
+                            colliseCounter++;
+                            continue;
+                        }
+                        if(info.direction.x > 0) {
+                            pos.x = blockPos.x - playerSize.x;
+
+                            colliseCounter++;
+                            continue;
+                        }
+
+                        if(info.direction.z < 0) {
+                            pos.z = blockSize.z + blockPos.z;
+
+                            colliseCounter++;
+                            continue;
+                        }
+                        if(info.direction.z > 0) {
+                            pos.z = blockPos.z - playerSize.z;
+
+                            colliseCounter++;
+                            continue;
+                        }
+                    }
+                    if(colliseCounter >= 3) {  break; }
                     
                 }
-                Gravity::update(player.get(), deltaTime, tmpPos);
-            } else {
-                Gravity::update(player.get(), deltaTime);
+
+                player->setPosition(pos);
+                Gravity::update(player.get(), deltaTime, tmpPosY);
             }
             
         }
 
-        std::cout << pos.y << std::endl;
+        // std::cout << pos.y << std::endl;
         
 
     });
-
-    double lastTimeF = glfwGetTime();
-    double secondF = 0;
-    int frame = 0;
     // Основной цикл
 
     printf("[Debag]: Start updates\n");
@@ -241,16 +300,12 @@ int main() {
         // Обмен буферов и обработка событий
         glfwSwapBuffers(window);
         glfwPollEvents();
-
-        frame += 1;
-        secondF += glfwGetTime() - lastTimeF;
-        lastTimeF = glfwGetTime();
-        // printf("[fps]: %f f/s \n", frame/secondF);
         
     }
     
     
     // Очистка
+    delete scene;
     
     glfwTerminate();
     return 0;

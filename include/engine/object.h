@@ -45,6 +45,10 @@ public:
     std::unique_ptr<Options> options;
     Options* getOptions();
 
+    ObjectType getType() {
+        return this->type;
+    }
+
     int getId();
 
     // static void render(const ShaderOptions& options);
