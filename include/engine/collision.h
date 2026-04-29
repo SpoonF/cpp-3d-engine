@@ -4,13 +4,15 @@
 #include <vector>
 #include <memory>
 
-class Positionable;
+#include "engine/traits/positionable.h"
+
+// class Positionable;
 
 
 class CollisionInfo {
 public:
     glm::vec3 Normal;
-    float PenetrationDepth;
+    glm::vec3 PenetrationDepth;
     std::vector<glm::vec3> collisionPoints;
     glm::vec3 direction;
 };

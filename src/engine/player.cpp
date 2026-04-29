@@ -3,6 +3,7 @@
 #include "engine/camera.h"
 #include "engine/object.h"
 #include "engine/collision_box.h"
+#include "engine/object/block.h"
 
 class Player: public Object, public CollisionBox {
 private:

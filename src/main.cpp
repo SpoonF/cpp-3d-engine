@@ -18,7 +18,7 @@
 #include <memory>
 
 #include "engine.cpp"
-
+#define GLM_ENABLE_EXPERIMENTAL
 // g++ src/main.cpp -o game -I ./include -lGL -lglfw -lGLEW && ./game
 
 // g++ src/main.cpp -fsanitize=address -g -o game -I ./include -lGL -lglfw -lGLEW && ./game
@@ -116,9 +116,9 @@ int main() {
 
     Shader::init(window, camera);
 
-    Scene *scene = new Scene(window, camera);
 
-    Object::init<ObjectType::BLOCK>("assets/models/cube.obj", "assets/textures/ground.bmp", "shaders/block.vert", "shaders/block.frag");
+
+    Object::init<ObjectType::BLOCK>("assets/models/cube.obj", "assets/textures/ground-cells.bmp", "shaders/block.vert", "shaders/block.frag");
 
     printf("Loading terrain...\n");
 
@@ -126,9 +126,13 @@ int main() {
     
     printf("Terrain is load...\n");
 
+    std::shared_ptr<Player> player = std::make_shared<Player>(world->getWorldCenter());
+
+    Scene *scene = new Scene(window, camera, player);
+
     scene->setWorld(world);
 
-    std::shared_ptr<Player> player = std::make_shared<Player>(world->getWorldCenter());
+    
 
     player->setCamera(camera);
 
@@ -143,8 +147,8 @@ int main() {
 
     // });
 
-
-    camera->setViewCallback([&player, &scene, &world, &camera](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
+    float time = 0.0f;
+    camera->setViewCallback([&player, &scene, &world, &camera, &time](glm::vec3 direction, glm::vec3 right, glm::vec3 up, float deltaTime) {
         glm::vec3 pos = player->getPosition();
         glm::vec3 oldPos = player->getPosition();
 
@@ -184,6 +188,7 @@ int main() {
         if(mouse_keys[GLFW_MOUSE_BUTTON_1]) {
             if(player->getSelectedObject() != nullptr) {
                 world->deleteBlock(player->getSelectedObject());
+                std::cout << player->getSelectedObject() << std::endl;
             }
         }
 
@@ -191,8 +196,10 @@ int main() {
 
         
         player->setPosition(pos);
+        
+        
 
-        if(pos.y > 0 && pos.y < 256 * 2) {
+        if((pos.y > 0 && pos.y < 256 * 2)) {
             
             if(Chunk* chunk = world->getChunk(pos)) {
                 double tmpPosY = 0.0;
@@ -210,9 +217,10 @@ int main() {
                     auto blockPos = block->getPosition();
                     auto blockSize = block->getSize();
                                                 
-                    for (float i = 0.f; i < 8.f; i += 0.1) {
-                        glm::vec3 point = camPos + direction;
+                    for (float i = 0.f; i < 8.f; i += 0.2) {
+                        glm::vec3 point = (camPos + direction) * i;
                         if(block->check(point)) {
+                            std::cout << block << std::endl;
                             player->setSelectedObject(block);
                             isSelectNew = true;
                             break;
@@ -228,58 +236,28 @@ int main() {
                         continue;
                     }
                     if(player->check(block, info)) {
-                        if(info.direction.y < 0) {
-                            tmpPosY = blockPos.y - info.direction.y;
-                            // pos.y = blockSize.y + blockPos.y;
+                        // std::cout << "collise" << "\t" << std::endl;
+                        glm::vec3 a = player->resolveCollision(block, info.PenetrationDepth);
 
-                            colliseCounter++;
-                            continue;
-                        }
+                        // std::cout << "overlap" << "\t" << a.x << "|"  << a.y << "|"  << a.z << std::endl;
+                        // collisions.push_back({block, info.PenetrationDepth});
+                        pos += a * deltaTime * 10.f;
+                        // pos.y = std::round(pos.y);
+                        tmpPosY = pos.y;
+                        
+                        
 
-                        if(info.direction.y > 0) {
-                            pos.y = blockPos.y - playerSize.y;
-
-                            colliseCounter++;
-                            continue;
-                        }   
-
-                        if(info.direction.x < 0) {
-                            pos.x = blockSize.x + blockPos.x;
-
-                            colliseCounter++;
-                            continue;
-                        }
-                        if(info.direction.x > 0) {
-                            pos.x = blockPos.x - playerSize.x;
-
-                            colliseCounter++;
-                            continue;
-                        }
-
-                        if(info.direction.z < 0) {
-                            pos.z = blockSize.z + blockPos.z;
-
-                            colliseCounter++;
-                            continue;
-                        }
-                        if(info.direction.z > 0) {
-                            pos.z = blockPos.z - playerSize.z;
-
-                            colliseCounter++;
-                            continue;
-                        }
                     }
-                    if(colliseCounter >= 3) {  break; }
                     
                 }
-
+                
                 player->setPosition(pos);
                 Gravity::update(player.get(), deltaTime, tmpPosY);
+                
             }
-            
         }
 
-        // std::cout << pos.y << std::endl;
+        std::cout << time << std::endl;
         
 
     });

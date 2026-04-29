@@ -27,9 +27,10 @@ public:
     }
 };
 
-Scene::Scene(GLFWwindow *window, std::shared_ptr<Camera> camera) {
+Scene::Scene(GLFWwindow *window, std::shared_ptr<Camera> camera, std::shared_ptr<Player> player) {
     this->window = window;
     this->camera = camera;
+    this->player = player;
     this->lastTime = glfwGetTime();
     printf("Create scene");
 }
@@ -129,6 +130,8 @@ void Scene::updateWorld()
             shader->set("lightPos", lightPos);
             shader->drawObjectInstaced(Model::getInstance(ObjectType::BLOCK), imageBMP::getInstance(ObjectType::BLOCK), options);
         }
+
+        // if(player->getSelectedObject())
         
 
         
